@@ -1,0 +1,18 @@
+---
+kind: "operation"
+client: "com.atomist:rug"
+version: "1.0.0-20170602144934"
+generator:
+  name: "UniversalSeed"
+  group: "atomist"
+  artifact: "spring-team-handlers"
+  version: "0.1.75"
+  origin:
+    repo: "git@github.com:atomisthq/spring-team-handlers"
+    branch: "xml-type"
+    sha: "d24dfb7"
+  parameters:
+    - "org": "jessitron"
+    - "repo": "elm-rugs"
+    - "branch": "master"
+
