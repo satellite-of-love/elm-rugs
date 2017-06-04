@@ -110,6 +110,19 @@ Then("we can detect 2 model fields", (p: Project, world) => {
     return result;
 });
 
+Then("the field is in the model's type", (p: Project, world) => {
+    const elmProgram = ElmProgram.parse(p, CERTAIN_INPUT_FILEPATH);
+    const passing = elmProgram.modelFields.length === 1 &&
+        elmProgram.modelFields[0].name === "count" &&
+        elmProgram.modelFields[0].type === "Int";
+
+    if (!passing) {
+        const after = p.findFile(CERTAIN_INPUT_FILEPATH).content;
+        console.log(`FAILURE: ${CERTAIN_INPUT_FILEPATH} --->\n${after}\n<---`);
+    }
+    return passing;
+});
+
 Then("the field is in the initial model", (p: Project, world) => {
     const elmProgram = ElmProgram.parse(p, CERTAIN_INPUT_FILEPATH);
     const passing = elmProgram.modelFields.length === 1 &&

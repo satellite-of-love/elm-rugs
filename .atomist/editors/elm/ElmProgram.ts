@@ -23,10 +23,6 @@ export class ElmProgram {
 
     }
 
-    private descend(pe: string): any[] {
-        return this.pxe.evaluate<TextTreeNode, TextTreeNode>(this.moduleNode, pe).matches;
-    }
-
     /*
   | ├─┬ [84-122] typeAlias
   | | ├── [96-101] typeName is Model
@@ -41,19 +37,32 @@ export class ElmProgram {
      */
     get modelFields(): Field[] {
 
-        const nodeToField = (n) => {
+        const nodeToField = (n: any) => {
             return {
                 name: n.fieldName.value(),
                 type: n.fieldType.value(),
             };
         };
-        const fields =
-            this.descend("//typeAlias[@typeName='Model']/definition/recordType/recordTypeField");
+        const fields = this.descend("//typeAlias[@typeName='Model']/definition/recordType/recordTypeField");
+
         return fields.map(nodeToField);
     }
 
     public addModelField(name: String, type: String, value: String): void {
+        const newFieldType = `${name} : ${type}`;
+        const fields = this.descend("//typeAlias[@typeName='Model']/definition/recordType/recordTypeField");
+        if (fields.length === 0) {
+            const emptyModel = this.descend("//typeAlias[@typeName='Model']/definition/recordType");
 
+            emptyModel[0].update("{ " + newFieldType + " } ");
+        } else {
+            const last = fields[fields.length - 1];
+            last.update(last.value() + ", " + newFieldType);
+        }
+    }
+
+    private descend(pe: string): TextTreeNode[] {
+        return this.pxe.evaluate<TextTreeNode, TextTreeNode>(this.moduleNode, pe).matches;
     }
 
 }
