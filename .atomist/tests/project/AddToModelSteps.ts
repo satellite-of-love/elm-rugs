@@ -36,6 +36,21 @@ init =
     { count = 0 }
 `;
 
+const TWO_FIELDS = `module Main exposing (main)
+
+
+-- MODEL
+
+
+type alias Model =
+    { count: Int, messages: List String }
+
+
+init : Model
+init =
+    { count = 0, messages: [] }
+`;
+
 //    Given an Elm program with an empty model
 // When the AddToModel is run
 // Then parameters were valid
@@ -58,7 +73,6 @@ When("the AddToModel is run", (p: Project, world) => {
 Given("an Elm program with a field in the model", (p: Project, world) => {
     p.addFile(CERTAIN_INPUT_FILEPATH, CERTAIN_FILE_CONTENT_AFTER);
     const elmProgram = ElmProgram.parse(p, CERTAIN_INPUT_FILEPATH);
-    return elmProgram.modelFields.length === 0;
 });
 
 Then("we can detect a model field", (p: Project, world) => {
@@ -74,15 +88,36 @@ Then("we can detect a model field", (p: Project, world) => {
             console.log(`${f.name}: ${f.type},`));
     }
     return result;
+});
 
+Given("an Elm program with 2 fields in the model", (p: Project, world) => {
+    p.addFile(CERTAIN_INPUT_FILEPATH, TWO_FIELDS);
+    const elmProgram = ElmProgram.parse(p, CERTAIN_INPUT_FILEPATH);
+});
+
+Then("we can detect 2 model fields", (p: Project, world) => {
+    const w = world as ProjectScenarioWorld;
+
+    const elmProgram = ElmProgram.parse(p, CERTAIN_INPUT_FILEPATH);
+    const result = elmProgram.modelFields.length === 2 &&
+        elmProgram.modelFields[0].name === "count" &&
+        elmProgram.modelFields[0].type === "Int";
+    if (!result) {
+        console.log(`There are ${elmProgram.modelFields.length} fields`);
+        elmProgram.modelFields.forEach((f) =>
+            console.log(`${f.name}: ${f.type},`));
+    }
+    return result;
 });
 
 Then("the field is in the initial model", (p: Project, world) => {
-    const w = world as ProjectScenarioWorld;
+    const elmProgram = ElmProgram.parse(p, CERTAIN_INPUT_FILEPATH);
+    const passing = elmProgram.modelFields.length === 1 &&
+        elmProgram.modelFields[0].name === "count" &&
+        elmProgram.modelFields[0].type === "Int";
 
-    const after = p.findFile(CERTAIN_INPUT_FILEPATH).content;
-    const passing = (after === CERTAIN_FILE_CONTENT_AFTER);
     if (!passing) {
+        const after = p.findFile(CERTAIN_INPUT_FILEPATH).content;
         console.log(`FAILURE: ${CERTAIN_INPUT_FILEPATH} --->\n${after}\n<---`);
     }
     return passing;

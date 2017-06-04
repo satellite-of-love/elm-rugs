@@ -23,8 +23,8 @@ export class ElmProgram {
 
     }
 
-    private descend(pe: string): any {
-        return this.pxe.scalar<TextTreeNode, TextTreeNode>(this.moduleNode, pe);
+    private descend(pe: string): any[] {
+        return this.pxe.evaluate<TextTreeNode, TextTreeNode>(this.moduleNode, pe).matches;
     }
 
     /*
@@ -40,20 +40,20 @@ export class ElmProgram {
   | |             └── [117-120] component is Int
      */
     get modelFields(): Field[] {
-        const modelType =
-            this.descend("//typeAlias[@typeName='Model']").definition.recordType;
-        if (modelType.recordTypeField === undefined) {
-            // 0
-            return [];
-        } else if (modelType.recordTypeField instanceof Array) {
-            // more than one
-        } else {
-            // 1
-            return [{
-                name: modelType.recordTypeField.fieldName.value(),
-                type: modelType.recordTypeField.fieldType.value(),
-            }];
-        }
+
+        const nodeToField = (n) => {
+            return {
+                name: n.fieldName.value(),
+                type: n.fieldType.value(),
+            };
+        };
+        const fields =
+            this.descend("//typeAlias[@typeName='Model']/definition/recordType/recordTypeField");
+        return fields.map(nodeToField);
+    }
+
+    public addModelField(name: String, type: String, value: String): void {
+
     }
 
 }

@@ -15,3 +15,8 @@ Feature: Make sure the sample TypeScript Editor has some tests
 Scenario: we can understand model fields
   Given an Elm program with a field in the model
   Then we can detect a model field
+
+ Scenario: we can understand model fields
+  Given an Elm program with 2 fields in the model
+  Then we can detect 2 model fields
+  

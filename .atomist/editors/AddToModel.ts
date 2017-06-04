@@ -2,6 +2,7 @@ import { File, Project } from "@atomist/rug/model/Core";
 import { Editor, Parameter, Tags } from "@atomist/rug/operations/Decorators";
 import { EditProject } from "@atomist/rug/operations/ProjectEditor";
 import { Pattern } from "@atomist/rug/operations/RugOperation";
+import { ElmProgram } from "./elm/ElmProgram";
 
 /**
  * Sample TypeScript editor used by AddAddToModel.
@@ -11,19 +12,32 @@ import { Pattern } from "@atomist/rug/operations/RugOperation";
 export class AddToModel implements EditProject {
 
     @Parameter({
-        displayName: "Some Input",
-        description: "example of how to specify a parameter using decorators",
+        displayName: "Field Name",
+        description: "name of the new field",
         pattern: Pattern.any,
-        validInput: "a description of the valid input",
-        minLength: 1,
-        maxLength: 100,
+        validInput: "an Elm identifier",
     })
-    public inputParameter: string;
+    public name: string;
+
+    @Parameter({
+        displayName: "Field Type",
+        description: "type of the new field",
+        pattern: Pattern.any,
+        validInput: "an Elm type",
+    })
+    public type: string;
+
+    @Parameter({
+        displayName: "Initial Value",
+        description: "starting value of the new field",
+        pattern: Pattern.any,
+        validInput: "an Elm expression",
+    })
+    public value: string;
 
     public edit(project: Project) {
-        const certainFile = project.findFile("hello.txt");
-        const newContent = certainFile.content.replace(/the world/, this.inputParameter);
-        certainFile.setContent(newContent);
+        const elmProgram = ElmProgram.parse(project, "src/Main.elm");
+        elmProgram.addModelField(this.name, this.type, this.value);
     }
 }
 
