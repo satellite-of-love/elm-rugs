@@ -1,4 +1,4 @@
-module BeginnerProgram exposing (main)
+module BeginnerProgram exposing (..)
 
 import Html exposing (Html)
 
@@ -10,9 +10,9 @@ type alias Model =
     {}
 
 
-init : ( Model, Cmd Msg )
+init : Model
 init =
-    ( {}, Cmd.none )
+    {}
 
 
 
@@ -29,28 +29,18 @@ type Msg
 
 view : Model -> Html Msg
 view model =
-    Html.div []
-        []
+    Html.div [] []
 
 
 
 -- UPDATE
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg -> Model -> Model
 update msg model =
     case msg of
         NoOp ->
-            ( model, Cmd.none )
-
-
-
--- SUBSCRIPTIONS
-
-
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    Sub.none
+            model
 
 
 
@@ -59,9 +49,8 @@ subscriptions model =
 
 main : Program Never Model Msg
 main =
-    Html.program
-        { init = init
+    Html.beginnerProgram
+        { model = init
         , view = view
         , update = update
-        , subscriptions = subscriptions
         }
