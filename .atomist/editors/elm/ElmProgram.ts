@@ -14,14 +14,21 @@ export class ElmProgram {
         if (!project.fileExists(filepath)) {
             throw new Error("File not found: " + filepath);
         }
-        const pxe = project.context.pathExpressionEngine;
-        const topLevelNode =
-            pxe.scalar<Project, TextTreeNode>(
-                project,
-                `/${filepath}/Elm()`);
-        return new ElmProgram(pxe, topLevelNode);
+        return new ElmProgram(project, filepath);
     }
-    private constructor(private pxe: PathExpressionEngine, private moduleNode: TextTreeNode) {
+    private pxe: PathExpressionEngine;
+    private reparse: () => void;
+    private moduleNode: TextTreeNode;
+
+    private constructor(project: Project, filepath: string) {
+        this.pxe = project.context.pathExpressionEngine;
+        this.reparse = () => {
+            this.moduleNode =
+                this.pxe.scalar<Project, TextTreeNode>(
+                    project,
+                    `/${filepath}/Elm()`);
+        };
+        this.reparse();
 
     }
 
@@ -35,14 +42,12 @@ export class ElmProgram {
   |             ├── [151-156] fieldName is count
   |             └─┬ [159-160] fieldValue
   |               └─┬ [159-160] functionApplication
-  |                 └─┬ [159-160] function is 0
+  |                 └─┬ [159-160] functiois 0
   |                   └── [159-160] intLiteral is 0
      */
     get modelFields(): Field[] {
 
         const nodeToField = (n, v) => {
-            console.log(`n = ${n}`)
-            console.log(`v = ${v}`)
             return {
                 name: n.fieldName.value(),
                 type: n.fieldType.value(),
@@ -66,17 +71,33 @@ export class ElmProgram {
     }
 
     public addModelField(name: string, type: string, value: string): void {
-        const newFieldType = `${name} : ${type}`;
-        const fields = this.descend("//typeAlias[@typeName='Model']/definition/recordType/recordTypeField");
-        if (fields.length === 0) {
-            const emptyModel = this.descend("//typeAlias[@typeName='Model']/definition/recordType");
-            if (emptyModel.length !== 1) {
-                throw new Error("Can't find the model at all");
+        {
+            const newFieldType = `${name} : ${type}`;
+            const fields = this.descend("//typeAlias[@typeName='Model']/definition/recordType/recordTypeField");
+            if (fields.length === 0) {
+                const emptyModel = this.descend("//typeAlias[@typeName='Model']/definition/recordType");
+                if (emptyModel.length !== 1) {
+                    throw new Error("Can't find the model at all");
+                }
+                emptyModel[0].update("{ " + newFieldType + " } ");
+            } else {
+                const last = fields[fields.length - 1];
+                last.update(last.value() + ", " + newFieldType);
             }
-            emptyModel[0].update("{ " + newFieldType + " } ");
-        } else {
-            const last = fields[fields.length - 1];
-            last.update(last.value() + ", " + newFieldType);
+        }
+        this.reparse();
+        {
+            const newFieldValue = `${name} = ${value}`;
+            const values = this.descend(
+                "//functionDeclaration[@functionName='init']//recordLiteralField");
+            if (values.length === 0) {
+                const empty = this.descend(
+                    "//functionDeclaration[@functionName='init']//recordLiteral");
+                empty[0].update("{ " + newFieldValue + " }");
+            } else {
+                const last = values[values.length - 1];
+                last.update(last.value() + ", " + newFieldValue);
+            }
         }
     }
 
