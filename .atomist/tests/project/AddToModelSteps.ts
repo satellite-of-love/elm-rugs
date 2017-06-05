@@ -48,7 +48,7 @@ type alias Model =
 
 init : Model
 init =
-    { count = 0, messages: [] }
+    { count = 0, messages = [] }
 `;
 
 //    Given an Elm program with an empty model
@@ -81,14 +81,19 @@ Then("we can detect a model field", (p: Project, world) => {
     const elmProgram = ElmProgram.parse(p, CERTAIN_INPUT_FILEPATH);
     const result = elmProgram.modelFields.length === 1 &&
         elmProgram.modelFields[0].name === "count" &&
-        elmProgram.modelFields[0].type === "Int";
+        elmProgram.modelFields[0].type === "Int" &&
+        elmProgram.modelFields[0].initialization === "0";
     if (!result) {
-        console.log(`There are ${elmProgram.modelFields.length} fields`);
-        elmProgram.modelFields.forEach((f) =>
-            console.log(`${f.name}: ${f.type},`));
+        printFields(elmProgram);
     }
     return result;
 });
+
+function printFields(elmProgram) {
+    console.log(`There are ${elmProgram.modelFields.length} fields`);
+    elmProgram.modelFields.forEach((f) =>
+        console.log(`${f.name}: ${f.type} = ${f.initialization}`));
+}
 
 Given("an Elm program with 2 fields in the model", (p: Project, world) => {
     p.addFile(CERTAIN_INPUT_FILEPATH, TWO_FIELDS);
@@ -99,13 +104,9 @@ Then("we can detect 2 model fields", (p: Project, world) => {
     const w = world as ProjectScenarioWorld;
 
     const elmProgram = ElmProgram.parse(p, CERTAIN_INPUT_FILEPATH);
-    const result = elmProgram.modelFields.length === 2 &&
-        elmProgram.modelFields[0].name === "count" &&
-        elmProgram.modelFields[0].type === "Int";
+    const result = elmProgram.modelFields.length === 2;
     if (!result) {
-        console.log(`There are ${elmProgram.modelFields.length} fields`);
-        elmProgram.modelFields.forEach((f) =>
-            console.log(`${f.name}: ${f.type},`));
+        printFields(elmProgram);
     }
     return result;
 });
@@ -126,8 +127,7 @@ Then("the field is in the model's type", (p: Project, world) => {
 Then("the field is in the initial model", (p: Project, world) => {
     const elmProgram = ElmProgram.parse(p, CERTAIN_INPUT_FILEPATH);
     const passing = elmProgram.modelFields.length === 1 &&
-        elmProgram.modelFields[0].name === "count" &&
-        elmProgram.modelFields[0].type === "Int";
+        elmProgram.modelFields[0].initialization === "0";
 
     if (!passing) {
         const after = p.findFile(CERTAIN_INPUT_FILEPATH).content;

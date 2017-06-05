@@ -1,9 +1,11 @@
 import { Project } from "@atomist/rug/model/Project";
 import { PathExpressionEngine, TextTreeNode } from "@atomist/rug/tree/PathExpression";
+import { drawTree } from "../../editors/TreePrinter";
 
 interface Field {
     name: string;
     type: string;
+    initialization: string;
 }
 
 export class ElmProgram {
@@ -24,31 +26,46 @@ export class ElmProgram {
     }
 
     /*
-  | ├─┬ [84-122] typeAlias
-  | | ├── [96-101] typeName is Model
-  | | └─┬ [108-122] definition
-  | |   └─┬ [108-122] recordType
-  | |     └─┬ [110-120] recordTypeField
-  | |       ├── [110-115] fieldName is count
-  | |       └─┬ [117-120] fieldType
-  | |         └─┬ [117-120] typeReference
-  | |           └─┬ [117-120] typeName
-  | |             └── [117-120] component is Int
+  |   ├── [138-142] functionName is init
+  |   └─┬ [149-162] body
+  |     └─┬ [149-162] functionApplication
+  |       └─┬ [149-162] function
+  |         └─┬ [149-162] recordLiteral
+  |           └─┬ [151-160] recordLiteralField
+  |             ├── [151-156] fieldName is count
+  |             └─┬ [159-160] fieldValue
+  |               └─┬ [159-160] functionApplication
+  |                 └─┬ [159-160] function is 0
+  |                   └── [159-160] intLiteral is 0
      */
     get modelFields(): Field[] {
 
-        const nodeToField = (n: any) => {
+        const nodeToField = (n, v) => {
+            console.log(`n = ${n}`)
+            console.log(`v = ${v}`)
             return {
                 name: n.fieldName.value(),
                 type: n.fieldType.value(),
+                initialization: v.fieldValue.value(),
             };
         };
-        const fields = this.descend("//typeAlias[@typeName='Model']/definition/recordType/recordTypeField");
+        const types = this.descend(
+            "//typeAlias[@typeName='Model']/definition/recordType/recordTypeField");
+        const values = this.descend(
+            "//functionDeclaration[@functionName='init']//recordLiteralField");
+        console.log("value: " + values[0]);
 
-        return fields.map(nodeToField);
+        if (values.length !== types.length) {
+            console.log(drawTree(this.moduleNode));
+            throw new Error("Could not detect initial values and types of model fields");
+        }
+
+        const fields =
+            types.map((e, i) => { console.log("i is " + i); return nodeToField(e, values[i]) });
+        return fields;
     }
 
-    public addModelField(name: String, type: String, value: String): void {
+    public addModelField(name: string, type: string, value: string): void {
         const newFieldType = `${name} : ${type}`;
         const fields = this.descend("//typeAlias[@typeName='Model']/definition/recordType/recordTypeField");
         if (fields.length === 0) {

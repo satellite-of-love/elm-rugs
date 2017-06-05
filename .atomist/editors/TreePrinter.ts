@@ -1,7 +1,15 @@
-import {TextTreeNode} from "@atomist/rug/tree/PathExpression";
+import { TextTreeNode } from "@atomist/rug/tree/PathExpression";
+
+function printNode(a: TextTreeNode): string {
+    if (a.children().length === 0) {
+        return `${a.nodeName()} = ${a.value()}`;
+    } else {
+        return a.nodeName();
+    }
+}
 
 export function drawTree(baby: TextTreeNode): string {
-    return draw<TextTreeNode>((a) => a.children(), (a) => `${a.nodeName()} = ${a.value()}`, baby);
+    return draw<TextTreeNode>((a) => a.children(), printNode, baby);
 }
 
 /**
@@ -29,22 +37,22 @@ export function draw<T>(children: (T) => T[], info: (T) => string, topOfTree: T)
 
     function drawInternal(tn: T): string[] {
         if (children(tn).length === 0) {
-            return [info(tn)]
+            return [info(tn)];
         }
         else {
-            return [info(tn)].concat(printChildren(children(tn)))
+            return [info(tn)].concat(printChildren(children(tn)));
         }
     }
 
     function printChildren(ch: T[]): string[] {
         console.log(ch.toString());
-        let last = ch[ch.length - 1];
-        let notLast = ch.slice(0, ch.length - 1);
+        const last = ch[ch.length - 1];
+        const notLast = ch.slice(0, ch.length - 1);
 
-        let lastLine = prefixChildLines(children(last).length > 0, true, drawInternal(last));
-        let earlierLines = [].concat.apply([], notLast.map(tn => prefixChildLines(children(tn).length > 0, false, drawInternal(tn))));
+        const lastLine = prefixChildLines(children(last).length > 0, true, drawInternal(last));
+        const earlierLines = [].concat.apply([], notLast.map((tn) => prefixChildLines(children(tn).length > 0, false, drawInternal(tn))));
 
-        return earlierLines.concat(lastLine)
+        return earlierLines.concat(lastLine);
     }
 
     return drawInternal(topOfTree).join("\n");
@@ -59,12 +67,12 @@ const FILLER = "  ";
 
 function prefixChildLines(hasChildren: boolean, last: boolean, childLines: string[]): string[] {
 
-    let head = childLines[0];
-    let rest = childLines.slice(1);
+    const head = childLines[0];
+    const rest = childLines.slice(1);
 
-    let connector = last ? FILLER : TREE_CONNECTOR;
-    let firstLine = firstLineOfChildPrefix(hasChildren, last) + head;
-    let restLines = rest.map((a) => connector.concat(a));
+    const connector = last ? FILLER : TREE_CONNECTOR;
+    const firstLine = firstLineOfChildPrefix(hasChildren, last) + head;
+    const restLines = rest.map((a) => connector.concat(a));
     return [firstLine].concat(restLines);
 
 }
@@ -76,6 +84,3 @@ function firstLineOfChildPrefix(hasChildren: boolean, last: boolean): string {
                 ((!hasChildren && !last) ? TREE_NODE :
                     "the impossible has happened")));
 }
-
-
-
