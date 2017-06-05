@@ -53,15 +53,15 @@ export class ElmProgram {
             "//typeAlias[@typeName='Model']/definition/recordType/recordTypeField");
         const values = this.descend(
             "//functionDeclaration[@functionName='init']//recordLiteralField");
-        console.log("value: " + values[0]);
 
         if (values.length !== types.length) {
             console.log(drawTree(this.moduleNode));
             throw new Error("Could not detect initial values and types of model fields");
         }
 
+        let i = 0; // the two-arg map is broken
         const fields =
-            types.map((e, i) => { console.log("i is " + i); return nodeToField(e, values[i]) });
+            types.map((e) => nodeToField(e, values[i++]));
         return fields;
     }
 
@@ -70,7 +70,9 @@ export class ElmProgram {
         const fields = this.descend("//typeAlias[@typeName='Model']/definition/recordType/recordTypeField");
         if (fields.length === 0) {
             const emptyModel = this.descend("//typeAlias[@typeName='Model']/definition/recordType");
-
+            if (emptyModel.length !== 1) {
+                throw new Error("Can't find the model at all");
+            }
             emptyModel[0].update("{ " + newFieldType + " } ");
         } else {
             const last = fields[fields.length - 1];
