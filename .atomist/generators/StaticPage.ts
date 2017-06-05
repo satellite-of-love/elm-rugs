@@ -11,13 +11,15 @@ class StaticPage implements PopulateProject {
         displayName: "Organization",
         validInput: "github owner",
         pattern: Pattern.group_id,
+        required: false,
     })
-    public org: string;
+    public org: string = "satellite-of-love";
 
     @Parameter({
         pattern: Pattern.any,
         validInput: "String of up to 80 characters",
         maxLength: 80,
+        required: false,
     })
     public description: string = "helpful summary of your project, less than 80 characters";
 
