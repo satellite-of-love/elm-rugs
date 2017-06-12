@@ -67,7 +67,7 @@ Given("an Elm program with an empty model", (p: Project, world) => {
 When("the AddToModel is run", (p: Project, world) => {
     const w = world as ProjectScenarioWorld;
     const editor = w.editor("AddToModel");
-    w.editWith(editor, { name: "count", type: "Int", value: "0" });
+    w.editWith(editor, { name: "banana", type: "String", value: "\"yellow\"" });
 });
 
 Given("an Elm program with a field in the model", (p: Project, world) => {
@@ -113,9 +113,8 @@ Then("we can detect 2 model fields", (p: Project, world) => {
 
 Then("the field is in the model's type", (p: Project, world) => {
     const elmProgram = ElmProgram.parse(p, CERTAIN_INPUT_FILEPATH);
-    const passing = elmProgram.modelFields.length === 1 &&
-        elmProgram.modelFields[0].name === "count" &&
-        elmProgram.modelFields[0].type === "Int";
+    const passing = elmProgram.modelFields.
+        filter((mf) => mf.name === "banana" && mf.type === "String").length === 1;
 
     if (!passing) {
         const after = p.findFile(CERTAIN_INPUT_FILEPATH).content;
@@ -126,8 +125,8 @@ Then("the field is in the model's type", (p: Project, world) => {
 
 Then("the field is in the initial model", (p: Project, world) => {
     const elmProgram = ElmProgram.parse(p, CERTAIN_INPUT_FILEPATH);
-    const passing = elmProgram.modelFields.length === 1 &&
-        elmProgram.modelFields[0].initialization === "0";
+    const passing = elmProgram.modelFields.
+        filter((mf) => mf.name === "banana" && mf.initialization === `"yellow"`).length === 1;
 
     if (!passing) {
         const after = p.findFile(CERTAIN_INPUT_FILEPATH).content;
