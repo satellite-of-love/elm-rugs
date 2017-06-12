@@ -9,7 +9,7 @@ const CERTAIN_INPUT_FILEPATH = "src/Main.elm";
 const CERTAIN_FILE_CONTENT_BEFORE = `module Main exposing (main)
 
 
--- MODEL
+-- UPDATE
 
 
 type alias Model =

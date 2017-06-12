@@ -8,6 +8,12 @@ interface Field {
     initialization: string;
 }
 
+interface Message {
+    constructor: string;
+    deconstructor: string;
+    updateResult: string;
+}
+
 export class ElmProgram {
 
     public static parse(project: Project, filepath: string = "src/Main.elm"): ElmProgram {
@@ -99,6 +105,11 @@ export class ElmProgram {
                 last.update(last.value() + ", " + newFieldValue);
             }
         }
+    }
+
+    get messages(): Message[] {
+
+        return [];
     }
 
     private descend(pe: string): TextTreeNode[] {

@@ -1,12 +1,27 @@
-Feature: Make sure the sample TypeScript Editor has some tests
-  This is the sample Gherkin feature file for the BDD tests of
-  the add a new constructor option for Msg type.
-  Feel free to modify and extend to suit the needs of your editor.
+Feature: Manipulate the messages
+  Understand and add to the messages sent around in an Elm program.
 
-
-  Scenario: AddMessage should edit a project correctly
-    Given a project with a certain file
-    When the AddMessage is run
+Scenario: AddMessages should edit a project correctly
+    Given an Elm program with only NoOp
+    When AddMessage is run
     Then parameters were valid
     Then changes were made
-    Then that certain file looks different
+    Then the field is in the Msg type
+    Then the field is in the update switch
+
+Scenario: AddMessages should edit a project with stuff in it
+    Givenan Elm program with a message
+    When AddMessage is run
+    Then parameters were valid
+    Then changes were made
+    Then the field is in the Msg type
+    Then the field is in the update switch
+
+ Scenario: we can understand messages
+  Given an Elm program with a message
+  Then we can detect a model field
+
+ Scenario: we can understand more messages
+  Given an Elm program with 2 messages
+  Then we can detect 2 messages
+  
