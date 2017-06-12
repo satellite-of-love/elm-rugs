@@ -65,3 +65,20 @@ editor:
   parameters:
     - "component": "minor"
 
+---
+kind: "operation"
+client: "com.atomist:rug"
+version: "1.0.1-JESS"
+editor:
+  name: "AddTypeScriptEditor"
+  group: "atomist"
+  artifact: "rug-rugs"
+  version: "0.32.0-20170606145959"
+  origin:
+    repo: "git@github.com:satellite-of-love/elm-rugs.git"
+    branch: "master"
+    sha: "b42cd7b"
+  parameters:
+    - "editorName": "AddMessage"
+    - "description": "add a new constructor option for Msg type"
+
