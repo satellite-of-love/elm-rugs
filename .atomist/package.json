@@ -21,7 +21,8 @@
   "dependencies": {
     "@atomist/rugs": "^1.0.0-m.4",
     "deprecated-decorator": "0.1.6",
-    "js-yaml": "^3.8.4"
+    "js-yaml": "^3.8.4",
+    "lodash": "^4.17.4"
   },
   "devDependencies": {
     "@types/mocha": "^2.2.40",
@@ -44,7 +45,7 @@
   "atomist": {
     "requires": "[1.0.0-m.3,2.0.0)",
     "extensions": {
-      "jessitron:kats-parser": "0.2.0"
+      "jessitron:kats-parser": "[0.2.1, 0.3.0)"
     }
   }
 }

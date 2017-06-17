@@ -1,8 +1,9 @@
-import { Project } from "@atomist/rug/model/Project";
+import {Project} from "@atomist/rug/model/Project";
 import {
     Given, ProjectScenarioWorld, Then, When,
 } from "@atomist/rug/test/project/Core";
-import { ElmProgram } from "../../editors/elm/ElmProgram";
+import {ElmProgram} from "../../editors/elm/ElmProgram";
+import * as Elm from "../../editors/elm/ElmProgram";
 
 const CERTAIN_INPUT_FILEPATH = "src/Main.elm";
 
@@ -82,7 +83,7 @@ Given("an Elm program with only NoOp", (p: Project, world) => {
 When("AddMessages is run", (p: Project, world) => {
     const w = world as ProjectScenarioWorld;
     const editor = w.editor("AddMessages");
-    w.editWith(editor, { constructor: "Banana String", deconstructor: "Banana color" });
+    w.editWith(editor, {constructor: "Banana String", deconstructor: "Banana color"});
 });
 
 Given("an Elm program with a message", (p: Project, world) => {
@@ -92,19 +93,30 @@ Given("an Elm program with a message", (p: Project, world) => {
 
 Then("we can detect a message", (p: Project, world) => {
     const elmProgram = ElmProgram.parse(p, CERTAIN_INPUT_FILEPATH);
-    const result = elmProgram.messages.length === 2 &&
-        elmProgram.messages[1].constructor === "Banana String" &&
-        elmProgram.messages[1].name === "Banana";
+
+    function banana(bananaMsg: Elm.Message) {
+        return bananaMsg.constructor === "Banana String" &&
+            bananaMsg.name === "Banana" &&
+            bananaMsg.reactions.length === 1 &&
+            bananaMsg.reactions[0].deconstructor === "Banana String" &&
+            bananaMsg.reactions[0].body === "model";
+    }
+
+    const result: boolean = elmProgram.messages.length === 2 &&
+        banana(elmProgram.messages[1]);
+
     if (!result) {
         printFields(elmProgram);
     }
     return result;
 });
 
-function printFields(elmProgram : ElmProgram) {
+function printFields(elmProgram: ElmProgram) {
     console.log(`There are ${elmProgram.messages.length} fields`);
-    elmProgram.messages.forEach((f) =>
-        console.log(`${f.name} from ${f.constructor}`));
+    elmProgram.messages.forEach((f) => {
+        const reactions = f.reactions.map(r => `${r.deconstructor} leads to: ${r.body}`);
+        console.log(`${f.name} from ${f.constructor}, ${reactions.join("\n and ")}`);
+    });
 }
 
 Given("an Elm program with 2 messages", (p: Project, world) => {
@@ -125,8 +137,7 @@ Then("we can detect 2 messages", (p: Project, world) => {
 
 Then("the field is in the Msg type", (p: Project, world) => {
     const elmProgram = ElmProgram.parse(p, CERTAIN_INPUT_FILEPATH);
-    const passing = elmProgram.messages.
-        filter((mf) => mf.constructor === "Banana String").length === 1;
+    const passing = elmProgram.messages.filter((mf) => mf.constructor === "Banana String").length === 1;
 
     if (!passing) {
         const after = p.findFile(CERTAIN_INPUT_FILEPATH).content;
@@ -137,9 +148,8 @@ Then("the field is in the Msg type", (p: Project, world) => {
 
 Then("the field is in the update switch", (p: Project, world) => {
     const elmProgram = ElmProgram.parse(p, CERTAIN_INPUT_FILEPATH);
-    const passing = elmProgram.messages.
-        filter((mf) => mf.reactions[0].deconstructor === "Banana color" &&
-            mf.reactions[0].body === `model`).length === 1; // Beginner program only
+    const passing = elmProgram.messages.filter((mf) => mf.reactions[0].deconstructor === "Banana color" &&
+        mf.reactions[0].body === `model`).length === 1; // Beginner program only
 
     if (!passing) {
         const after = p.findFile(CERTAIN_INPUT_FILEPATH).content;

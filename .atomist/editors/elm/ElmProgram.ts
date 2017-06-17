@@ -1,6 +1,7 @@
 import { Project } from "@atomist/rug/model/Project";
 import { PathExpressionEngine, TextTreeNode } from "@atomist/rug/tree/PathExpression";
-import { drawTree } from "../../editors/TreePrinter";
+import * as TreePrinter from "../../editors/TreePrinter";
+import * as _ from "lodash";
 
 interface Field {
     name: string;
@@ -9,12 +10,13 @@ interface Field {
 }
 
 interface ReactionToMessage {
-    deconstructor: string;
-    body: string;
+    deconstructor: TextTreeNode;
+    body: TextTreeNode;
 }
-interface Message {
-    name: string;
-    constructor: string;
+
+export interface Message {
+    name: TextTreeNode;
+    constructor: TextTreeNode;
     reactions: ReactionToMessage[];
 }
 
@@ -70,7 +72,7 @@ export class ElmProgram {
             "//functionDeclaration[@functionName='init']//recordLiteralField");
 
         if (values.length !== types.length) {
-            console.log(drawTree(this.moduleNode));
+            console.log(TreePrinter.drawTree(this.moduleNode));
             throw new Error("Could not detect initial values and types of model fields");
         }
 
@@ -111,27 +113,55 @@ export class ElmProgram {
         }
     }
 
+
     /*
-      | ├── [210-218] sectionHeader is MESSAGES
-      | └─┬ [221-241] unionTypeDeclaration
-      |   ├── [227-230] typeName is Msg
-      |   └─┬ [237-241] constructor
-      |     └─┬ [237-241] typeReference
-      |       └─┬ [237-241] typeName
-      |         └── [237-241] component is NoOp
-      */
+     *
+     */
     get messages(): Message[] {
+       /*
+        clause
+        ├─┬ deconstructorPattern
+        | ├─┬ constructorName
+        | | └── component is Yes
+        | └── identifier is string
+        └─┬ result
+          └─┬ recordLiteral
+            ├── startingRecord is model
+            └─┬ recordLiteralField
+              ├── fieldName is messages
+              └─┬ fieldValue
+                └─┬ listLiteral
+                  └─┬ listItem
+                    └── functionName is string
+         */
         const reactions = this.descend(
-            "//functionDeclaration[@functionName='update']/body//caseExpression[/pivot[@value='msg']]/clause")
+            "//functionDeclaration[@functionName='update']/body//caseExpression[/pivot[@value='msg']]/clause");
+        const messageReactions = reactions.map((clause : any) => {
 
+            console.log(TreePrinter.drawTree(clause));
+           return { name: clause.deconstructorPattern.constructorName,
+                    deconstructor: clause.deconstructorPattern,
+                    body: clause.result
+        }});
+        const reactionsMap = _.groupBy(messageReactions, (r) => r.name.value());
 
+        /*
+         | ├── [210-218] sectionHeader is MESSAGES
+         | └─┬ [221-241] unionTypeDeclaration
+         |   ├── [227-230] typeName is Msg
+         |   └─┬ [237-241] constructor
+         |     └─┬ [237-241] typeReference
+         |       └─┬ [237-241] typeName
+         |         └── [237-241] component is NoOp
+         */
         const values = this.descend(
             "//unionTypeDeclaration[@typeName='Msg']//constructor");
         const messages = values.map((ttn: any) => {
+            const name = ttn.typeReference.typeName.value()
             return {
-                constructor: ttn.value(),
-                name: ttn.typeReference.typeName.value(),
-                reactions: []
+                constructor: ttn,
+                name: ttn.typeReference.typeName,
+                reactions: reactionsMap[name],
             };
         });
 
