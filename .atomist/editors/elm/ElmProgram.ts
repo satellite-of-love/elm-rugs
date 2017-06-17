@@ -8,10 +8,14 @@ interface Field {
     initialization: string;
 }
 
-interface Message {
-    constructor: string;
+interface ReactionToMessage {
     deconstructor: string;
-    updateResult: string;
+    body: string;
+}
+interface Message {
+    name: string;
+    constructor: string;
+    reactions: ReactionToMessage[];
 }
 
 export class ElmProgram {
@@ -107,9 +111,31 @@ export class ElmProgram {
         }
     }
 
+    /*
+      | ├── [210-218] sectionHeader is MESSAGES
+      | └─┬ [221-241] unionTypeDeclaration
+      |   ├── [227-230] typeName is Msg
+      |   └─┬ [237-241] constructor
+      |     └─┬ [237-241] typeReference
+      |       └─┬ [237-241] typeName
+      |         └── [237-241] component is NoOp
+      */
     get messages(): Message[] {
+        const reactions = this.descend(
+            "//functionDeclaration[@functionName='update']/body//caseExpression[/pivot[@value='msg']]/clause")
 
-        return [];
+
+        const values = this.descend(
+            "//unionTypeDeclaration[@typeName='Msg']//constructor");
+        const messages = values.map((ttn: any) => {
+            return {
+                constructor: ttn.value(),
+                name: ttn.typeReference.typeName.value(),
+                reactions: []
+            };
+        });
+
+        return messages;
     }
 
     private descend(pe: string): TextTreeNode[] {

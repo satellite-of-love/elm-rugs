@@ -19,7 +19,7 @@ Scenario: AddMessages should edit a project with stuff in it
 
  Scenario: we can understand messages
   Given an Elm program with a message
-  Then we can detect a model field
+  Then we can detect a message
 
  Scenario: we can understand more messages
   Given an Elm program with 2 messages

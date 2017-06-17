@@ -77,8 +77,6 @@ update msg model =
 
 Given("an Elm program with only NoOp", (p: Project, world) => {
     p.addFile(CERTAIN_INPUT_FILEPATH, CERTAIN_FILE_CONTENT_BEFORE);
-    const elmProgram = ElmProgram.parse(p, CERTAIN_INPUT_FILEPATH);
-    return elmProgram.modelFields.length === 0;
 });
 
 When("AddMessages is run", (p: Project, world) => {
@@ -96,17 +94,17 @@ Then("we can detect a message", (p: Project, world) => {
     const elmProgram = ElmProgram.parse(p, CERTAIN_INPUT_FILEPATH);
     const result = elmProgram.messages.length === 2 &&
         elmProgram.messages[1].constructor === "Banana String" &&
-        elmProgram.messages[1].deconstructor === "Banana color";
+        elmProgram.messages[1].name === "Banana";
     if (!result) {
         printFields(elmProgram);
     }
     return result;
 });
 
-function printFields(elmProgram) {
+function printFields(elmProgram : ElmProgram) {
     console.log(`There are ${elmProgram.messages.length} fields`);
     elmProgram.messages.forEach((f) =>
-        console.log(`${f.deconstructor} from ${f.constructor}`));
+        console.log(`${f.name} from ${f.constructor}`));
 }
 
 Given("an Elm program with 2 messages", (p: Project, world) => {
@@ -140,8 +138,8 @@ Then("the field is in the Msg type", (p: Project, world) => {
 Then("the field is in the update switch", (p: Project, world) => {
     const elmProgram = ElmProgram.parse(p, CERTAIN_INPUT_FILEPATH);
     const passing = elmProgram.messages.
-        filter((mf) => mf.deconstructor === "Banana color" &&
-            mf.updateResult === `model`).length === 1; // Beginner program only
+        filter((mf) => mf.reactions[0].deconstructor === "Banana color" &&
+            mf.reactions[0].body === `model`).length === 1; // Beginner program only
 
     if (!passing) {
         const after = p.findFile(CERTAIN_INPUT_FILEPATH).content;
