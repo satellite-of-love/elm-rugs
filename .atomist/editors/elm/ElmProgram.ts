@@ -1,5 +1,5 @@
-import { Project } from "@atomist/rug/model/Project";
-import { PathExpressionEngine, TextTreeNode } from "@atomist/rug/tree/PathExpression";
+import {Project} from "@atomist/rug/model/Project";
+import {PathExpressionEngine, TextTreeNode} from "@atomist/rug/tree/PathExpression";
 import * as TreePrinter from "../../editors/TreePrinter";
 import * as _ from "lodash";
 
@@ -28,6 +28,7 @@ export class ElmProgram {
         }
         return new ElmProgram(project, filepath);
     }
+
     private pxe: PathExpressionEngine;
     private reparse: () => void;
     private moduleNode: TextTreeNode;
@@ -45,17 +46,17 @@ export class ElmProgram {
     }
 
     /*
-  |   ├── [138-142] functionName is init
-  |   └─┬ [149-162] body
-  |     └─┬ [149-162] functionApplication
-  |       └─┬ [149-162] function
-  |         └─┬ [149-162] recordLiteral
-  |           └─┬ [151-160] recordLiteralField
-  |             ├── [151-156] fieldName is count
-  |             └─┬ [159-160] fieldValue
-  |               └─┬ [159-160] functionApplication
-  |                 └─┬ [159-160] functiois 0
-  |                   └── [159-160] intLiteral is 0
+     |   ├── [138-142] functionName is init
+     |   └─┬ [149-162] body
+     |     └─┬ [149-162] functionApplication
+     |       └─┬ [149-162] function
+     |         └─┬ [149-162] recordLiteral
+     |           └─┬ [151-160] recordLiteralField
+     |             ├── [151-156] fieldName is count
+     |             └─┬ [159-160] fieldValue
+     |               └─┬ [159-160] functionApplication
+     |                 └─┬ [159-160] functiois 0
+     |                   └── [159-160] intLiteral is 0
      */
     get modelFields(): Field[] {
 
@@ -118,31 +119,42 @@ export class ElmProgram {
      *
      */
     get messages(): Message[] {
-       /*
-        clause
-        ├─┬ deconstructorPattern
-        | ├─┬ constructorName
-        | | └── component is Yes
-        | └── identifier is string
-        └─┬ result
-          └─┬ recordLiteral
-            ├── startingRecord is model
-            └─┬ recordLiteralField
-              ├── fieldName is messages
-              └─┬ fieldValue
-                └─┬ listLiteral
-                  └─┬ listItem
-                    └── functionName is string
+        /*
+         clause
+         ├─┬ deconstructorPattern
+         | ├─┬ constructorName
+         | | └── component is Yes
+         | └── identifier is string
+         └─┬ result
+         └─┬ recordLiteral
+         ├── startingRecord is model
+         └─┬ recordLiteralField
+         ├── fieldName is messages
+         └─┬ fieldValue
+         └─┬ listLiteral
+         └─┬ listItem
+         └── functionName is string
          */
         const reactions = this.descend(
             "//functionDeclaration[@functionName='update']/body//caseExpression[/pivot[@value='msg']]/clause");
-        const messageReactions = reactions.map((clause : any) => {
+        const messageReactions = reactions.map((clause: any) => {
 
-            console.log(TreePrinter.drawTree(clause));
-           return { name: clause.deconstructorPattern.constructorName,
-                    deconstructor: clause.deconstructorPattern,
-                    body: clause.result
-        }});
+                console.log(TreePrinter.drawTree(clause));
+                if (clause.deconstructorPattern) {
+                    return {
+                        name: clause.deconstructorPattern.constructorName,
+                        deconstructor: clause.deconstructorPattern,
+                        body: clause.result
+                    }
+                } else {
+                    return {
+                        name: clause.constructorName,
+                        deconstructor: clause.constructorName,
+                        body: clause.result
+                    }
+                }
+            }
+        );
         const reactionsMap = _.groupBy(messageReactions, (r) => r.name.value());
 
         /*
