@@ -95,11 +95,11 @@ Then("we can detect a message", (p: Project, world) => {
     const elmProgram = ElmProgram.parse(p, CERTAIN_INPUT_FILEPATH);
 
     function banana(bananaMsg: Elm.Message) {
-        return bananaMsg.constructor === "Banana String" &&
-            bananaMsg.name === "Banana" &&
+        return bananaMsg.constructor.value() === "Banana String" &&
+            bananaMsg.name.value() === "Banana" &&
             bananaMsg.reactions.length === 1 &&
-            bananaMsg.reactions[0].deconstructor === "Banana String" &&
-            bananaMsg.reactions[0].body === "model";
+            bananaMsg.reactions[0].deconstructor.value() === "Banana String" &&
+            bananaMsg.reactions[0].body.value() === "model";
     }
 
     const result: boolean = elmProgram.messages.length === 2 &&
@@ -137,7 +137,10 @@ Then("we can detect 2 messages", (p: Project, world) => {
 
 Then("the field is in the Msg type", (p: Project, world) => {
     const elmProgram = ElmProgram.parse(p, CERTAIN_INPUT_FILEPATH);
-    const passing = elmProgram.messages.filter((mf) => mf.constructor === "Banana String").length === 1;
+    const passing =
+        elmProgram.messages.
+        filter((mf) => mf.constructor.value() === "Banana String").
+            length === 1;
 
     if (!passing) {
         const after = p.findFile(CERTAIN_INPUT_FILEPATH).content;
@@ -148,8 +151,9 @@ Then("the field is in the Msg type", (p: Project, world) => {
 
 Then("the field is in the update switch", (p: Project, world) => {
     const elmProgram = ElmProgram.parse(p, CERTAIN_INPUT_FILEPATH);
-    const passing = elmProgram.messages.filter((mf) => mf.reactions[0].deconstructor === "Banana color" &&
-        mf.reactions[0].body === `model`).length === 1; // Beginner program only
+    const passing = elmProgram.messages.
+        filter((mf) => mf.reactions[0].deconstructor.value() === "Banana color" &&
+        mf.reactions[0].body.value() === `model`).length === 1; // Beginner program only
 
     if (!passing) {
         const after = p.findFile(CERTAIN_INPUT_FILEPATH).content;
