@@ -29,6 +29,8 @@ class StaticPage implements PopulateProject {
 
         // remove files used by editors
         project.deleteFile("src/BeginnerProgram.elm");
+        this.removeCrud(project);
+
 
         const repo = "https://github.com/" + this.org + "/" + projectName.toLowerCase() + ".git";
         const linkToGithubPages = "https://" + this.org + ".github.io/" + projectName;
@@ -56,6 +58,11 @@ ${this.description}
         readme.setContent(newReadmeContent);
 
         project.deleteFile(".atomist.yml");
+    }
+
+    private removeCrud(project: Project) {
+        project.deleteDirectory(".idea");
+        project.deleteFile("elm-rugs.iml");
     }
 
 }
