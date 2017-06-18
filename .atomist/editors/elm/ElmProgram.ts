@@ -173,7 +173,11 @@ export class ElmProgram {
         return messages;
     }
 
-    public addMessage(params: {constructor: string, deconstructor: string}) {
+    public addMessage(params: {
+        constructor: string,
+        deconstructor: string,
+        updatedModel: string
+    }) {
         const lastMessage = last(this.messages, "messages");
 
         lastMessage.constructor.update(lastMessage.constructor.value() + `
@@ -187,8 +191,10 @@ export class ElmProgram {
         lastReaction.body.update(lastReaction.body.value() + `
         
         ${params.deconstructor} -> 
-            model`)
+            ${params.updatedModel}`)
         // TODO: handle advanced program
+
+        this.reparse();
     }
 
     private descend(pe: string): TextTreeNode[] {
@@ -199,7 +205,7 @@ export class ElmProgram {
 
 function last<T>(arr: T[], name: string = "an"): T {
     if (arr.length === 0) {
-       throw new Error(`${name} array was empty`)
+        throw new Error(`${name} array was empty`)
     }
     return arr[arr.length - 1];
 }

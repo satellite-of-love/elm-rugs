@@ -83,7 +83,10 @@ Given("an Elm program with only NoOp", (p: Project, world) => {
 When("AddMessage is run", (p: Project, world) => {
     const w = world as ProjectScenarioWorld;
     const editor = w.editor("AddMessage");
-    w.editWith(editor, {messageConstructor: "Banana String", deconstructor: "Banana color"});
+    w.editWith(editor, { messageConstructor: "Banana String",
+        deconstructor: "Banana color",
+        updatedModel: "{ model | bananaColor = color }"
+    });
 });
 
 Given("an Elm program with a message", (p: Project, world) => {
@@ -155,7 +158,8 @@ Then("the field is in the update switch", (p: Project, world) => {
     const elmProgram = ElmProgram.parse(p, CERTAIN_INPUT_FILEPATH);
     const passing = elmProgram.messages.
         filter((mf) => mf.reactions[0].deconstructor.value() === "Banana color" &&
-        mf.reactions[0].body.value() === `model`).length === 1; // Beginner program only
+        mf.reactions[0].body.value() === `{ model | bananaColor = color }`).length === 1;
+    // Beginner program only
 
     if (!passing) {
         const after = p.findFile(CERTAIN_INPUT_FILEPATH).content;

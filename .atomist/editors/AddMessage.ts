@@ -28,6 +28,14 @@ export class AddMessage implements EditProject {
     public deconstructor: string;
 
     @Parameter({
+        displayName: "how to update the model",
+        description: "an expression for the model after this message is received",
+        pattern: Pattern.any,
+        validInput: "an Elm expression",
+    })
+    public updatedModel: string = "model";
+
+    @Parameter({
         displayName: "Main file",
         description: "where is main?",
         pattern: Pattern.any,
@@ -39,7 +47,8 @@ export class AddMessage implements EditProject {
         const elmProgram = ElmProgram.parse(project, this.mainFile);
         elmProgram.addMessage({
             constructor: this.messageConstructor,
-            deconstructor: this.deconstructor
+            deconstructor: this.deconstructor,
+            updatedModel: this.updatedModel
         })
     }
 }
