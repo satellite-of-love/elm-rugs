@@ -174,14 +174,14 @@ export class ElmProgram {
     }
 
     public addMessage(params: {constructor: string, deconstructor: string}) {
-        const currentMessages = this.messages;
-        const lastMessage = currentMessages[currentMessages.length - 1];
+        const lastMessage = last(this.messages, "messages");
 
         lastMessage.constructor.update(lastMessage.constructor.value() + `
     | ${params.constructor}`);
 
-        const reactions = this.updateClauses;
-        const lastReaction = reactions[reactions.length - 1];
+        this.reparse();
+
+        const lastReaction = last(this.updateClauses, "update clauses");
 
         // @rod this should check the indention, match what's on lastReaction.pattern. We have that functionality, how to use it?
         lastReaction.body.update(lastReaction.body.value() + `
@@ -195,4 +195,11 @@ export class ElmProgram {
         return this.pxe.evaluate<TextTreeNode, TextTreeNode>(this.moduleNode, pe).matches;
     }
 
+}
+
+function last<T>(arr: T[], name: string = "an"): T {
+    if (arr.length === 0) {
+       throw new Error(`${name} array was empty`)
+    }
+    return arr[arr.length - 1];
 }

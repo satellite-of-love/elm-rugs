@@ -27,8 +27,16 @@ export class AddMessage implements EditProject {
     })
     public deconstructor: string;
 
+    @Parameter({
+        displayName: "Main file",
+        description: "where is main?",
+        pattern: Pattern.any,
+        validInput: "path to a .elm file",
+    })
+    public mainFile: string = "src/Main.elm";
+
     public edit(project: Project) {
-        const elmProgram = ElmProgram.parse(project, "src/Main.elm");
+        const elmProgram = ElmProgram.parse(project, this.mainFile);
         elmProgram.addMessage({
             constructor: this.messageConstructor,
             deconstructor: this.deconstructor
