@@ -20,6 +20,13 @@ export interface Message {
     reactions: ReactionToMessage[];
 }
 
+export interface Function {
+    name: string, // make this a class in order to set it; there can be 2
+    // parameters?
+    declaredType: TextTreeNode,
+    body: TextTreeNode,
+}
+
 export interface Section {
     name: TextTreeNode,
     body: TextTreeNode
@@ -53,13 +60,15 @@ export class ElmProgram {
 
     }
 
+
     get programLevel(): ProgramLevel {
-        const mainType = this.getMainFunctionTypeName();
+        const mainFunction = this.getFunction("main");
+        const mainType = (mainFunction.declaredType as any).typeReference.typeName.value();
 
         if (mainType === "Html") {
             return "static";
         } else if (mainType === "Program") {
-            const mainBody = this.getMainFunctionBody();
+            const mainBody = mainFunction.body.value();
             return (mainBody.indexOf("beginnerProgram") >= 0) ?
                 "beginner" :
                 "advanced"
@@ -68,28 +77,59 @@ export class ElmProgram {
         }
     }
 
-    /*
-     * this gets only the name of the type of main, not its type parameters
-     */
-    private getMainFunctionTypeName(): string {
-        const typeNodes: any[] =
-            this.descend(`//functionDeclaration/typeDeclaration[@functionName='main']/declaredType`);
-        if (typeNodes.length == 0) {
-            throw new Error("Can't find the main function's type");
+    public upgrade() {
+        if (this.programLevel === "advanced") {
+            return;
         }
-        if (!(typeNodes[0].typeReference &&
-            typeNodes[0].typeReference.typeName)) {
-            throw new Error("Unexpected structure of main's type:\n" + TreePrinter.drawTree(typeNodes[0]));
+        if (this.programLevel !== "beginner") {
+            throw new Error("Can only upgrade a beginner program to advanced")
         }
-        return typeNodes[0].typeReference.typeName.value();
+
+        const main = this.descend(`//functionDeclaration[@functionName='main']`)[0];
+        main.update(ADVANCED_MAIN);
+        this.reparse();
+
+        const init = this.getFunction("init");
+        init.declaredType.update("( Model, Cmd Msg )");
+        init.body.update(`( ${init.body.value()}, Cmd.none )`);
+        this.reparse();
+
+        const update = this.getFunction("update");
+        update.declaredType.update("Msg -> Model -> ( Model, Cmd Msg )")
+        this.reparse();
+
+        const reactions = this.updateClauses;
+        reactions.forEach(r =>
+           r.body.update(`( ${r.body.value()}, Cmd.none )`)
+        );
+        this.reparse();
+
+        const updateSection = this.getSection("UPDATE");
+        updateSection.body.update(updateSection.body.value() + "\n\n\n\n" + SUBSCRIPTIONS_SECTION);
+        this.reparse();
     }
 
-    private getMainFunctionBody(): string {
-        const mainBodyNodes = this.descend(`//functionDeclaration[@functionName='main']/body`)
-        if (mainBodyNodes.length === 0) {
-            throw new Error("Can't find the main function's body");
+    public getFunction(name: string): Function | null {
+        const functionNodes = this.descend(`//functionDeclaration[@functionName='${name}']`);
+        if (functionNodes.length === 0) {
+            return null;
         }
-        return mainBodyNodes[0].value()
+        if (functionNodes.length > 1) {
+            throw new Error(`WTF there are ${functionNodes.length} functions named ${name}`)
+        }
+
+        const functionNode: any = functionNodes[0];
+
+        const declaredType =
+            functionNode.typeDeclaration &&
+            functionNode.typeDeclaration.declaredType
+            || null;
+
+        return {
+            name,
+            declaredType,
+            body: functionNode.body
+        }
     }
 
     /*
@@ -251,7 +291,7 @@ export class ElmProgram {
     /*
      * sections
      */
-    public get sections(): Section[] {
+    private get sections(): Section[] {
         const sectionNodes = this.descend("//section")
 
         return sectionNodes.map((s: any) => {
@@ -263,12 +303,16 @@ export class ElmProgram {
         )
     }
 
-    public addFunction(functionText: string, sectionName: string) {
+    private getSection(sectionName: string): Section {
         const sections = this.sections.filter(s => s.name.value() === sectionName);
         if (sections.length === 0) {
             throw new Error(`Section ${sectionName} not found in ${this.filepath}`)
         }
-        const sectionOfInterest: Section = sections[0];
+        return sections[0];
+    }
+
+    public addFunction(functionText: string, sectionName: string) {
+        const sectionOfInterest = this.getSection(sectionName);
 
         sectionOfInterest.body.update(
             sectionOfInterest.body.value() + "\n\n\n" + functionText);
@@ -283,7 +327,7 @@ export class ElmProgram {
         const newImport = `import ${name}`;
 
         function importCompare(a: string, b: string): number {
-          //  console.log(`comparing ${a} to ${b}`)
+            //  console.log(`comparing ${a} to ${b}`)
             if (b.indexOf(a) === 0) {
                 // a is contained within b. put b later
                 return -1;
@@ -329,6 +373,24 @@ export class ElmProgram {
     }
 
 }
+
+const ADVANCED_MAIN =
+    `main : Program Never Model Msg
+main =
+    Html.program
+        { init = init
+        , view = view
+        , update = update
+        , subscriptions = subscriptions
+        }`;
+
+const SUBSCRIPTIONS_SECTION =
+    `-- SUBSCRIPTIONS
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.none`;
 
 function last<T>(arr: T[], name: string = "an"): T {
     if (arr.length === 0) {

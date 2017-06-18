@@ -5,7 +5,7 @@ Feature: Make sure the sample TypeScript Editor has some tests
 
 
   Scenario: Upgrade should edit a project correctly
-    Given a beginner Elm project
+    Given an Elm beginner program with a text input
     When the Upgrade is run
     Then parameters were valid
     Then changes were made

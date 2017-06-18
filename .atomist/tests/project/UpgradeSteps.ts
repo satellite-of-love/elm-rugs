@@ -1,27 +1,30 @@
 import {Project} from "@atomist/rug/model/Project";
 import {
-    ProjectScenarioWorld, Then, When,
+    ProjectScenarioWorld, Then, When, Given
 } from "@atomist/rug/test/project/Core";
 import {ElmProgram} from "../../editors/elm/ElmProgram";
+import {BEGINNER_PROGRAM_WITH_TEXT_INPUT, showResult} from "./AddTextInputSteps";
 
 const CERTAIN_INPUT_FILEPATH = "src/Main.elm";
 
 
-const CERTAIN_FILE_CONTENT_AFTER = `module Program exposing (main)
+const CERTAIN_FILE_CONTENT_AFTER = `module BeginnerProgram exposing (main)
 
 import Html exposing (Html)
+import Html.Attributes
+import Html.Events
 
 
 -- MODEL
 
 
 type alias Model =
-    { count: Int }
+    { newLabel : String }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( { count = 0 }, Cmd.none )
+    ( { newLabel = "" }, Cmd.none )
 
 
 
@@ -30,6 +33,7 @@ init =
 
 type Msg
     = NoOp
+    | NewLabel String
 
 
 
@@ -38,7 +42,16 @@ type Msg
 
 view : Model -> Html Msg
 view model =
-    Html.div []
+    Html.div [] []
+
+
+newLabelInput : Model -> Html Msg
+newLabelInput model =
+    Html.input
+        [ Html.Attributes.id \"newLabel\"
+        , Html.Events.onInput NewLabel
+        , Html.Attributes.value model.newLabel
+        ]
         []
 
 
@@ -51,6 +64,9 @@ update msg model =
     case msg of
         NoOp ->
             ( model, Cmd.none )
+
+        NewLabel newLabel ->
+            ( { model | newLabel = newLabel }, Cmd.none )
 
 
 
@@ -76,6 +92,8 @@ main =
         }
 `;
 
+Given("an Elm beginner program with a text input", (p: Project) =>
+    p.addFile(CERTAIN_INPUT_FILEPATH, BEGINNER_PROGRAM_WITH_TEXT_INPUT));
 
 When("the Upgrade is run", (p: Project, world) => {
     const w = world as ProjectScenarioWorld;
@@ -83,14 +101,14 @@ When("the Upgrade is run", (p: Project, world) => {
     w.editWith(editor, {});
 });
 
-Then("we have an advanced program", (p: Project) => {
+Then("we have an advanced Elm project", (p: Project) => {
     const elmProgram = ElmProgram.parse(p, CERTAIN_INPUT_FILEPATH);
 
     const after = p.findFile(CERTAIN_INPUT_FILEPATH).content;
     const passing = elmProgram.programLevel === "advanced" &&
         (after === CERTAIN_FILE_CONTENT_AFTER);
     if (!passing) {
-        console.log(`FAILURE: ${CERTAIN_INPUT_FILEPATH} --->\n${after}\n<---`);
+        showResult(CERTAIN_FILE_CONTENT_AFTER, after, CERTAIN_INPUT_FILEPATH);
     }
     return passing;
 });

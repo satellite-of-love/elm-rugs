@@ -14,7 +14,7 @@ onEnter msg =
             else
                 Json.Decode.fail "not ENTER"
     in
-        on "keydown" (Json.Decode.andThen isEnter Html.Events.keyCode)`;
+        Html.Events.on "keydown" (Json.Decode.andThen isEnter Html.Events.keyCode)`;
 
 
 /**

@@ -19,7 +19,6 @@ export class AddTextInput implements EditProject {
     })
     public name: string;
 
-    // TODO: parameterize this
     @Parameter({
         displayName: "Main file",
         description: "where is main?",

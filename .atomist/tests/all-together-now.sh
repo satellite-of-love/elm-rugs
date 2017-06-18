@@ -22,7 +22,7 @@ rug edit ChangeMain newBody="Html.main_ [] [ Html.canvas [ Html.Attributes.style
 rug edit UpgradeToBeginnerProgram -lRC $project_dir
 rug edit AddTextInput name=beginnerInput -lRC $project_dir
 rug edit OnEnter enter_message=Save -lRC $project_dir
-#rug edit UpgradeToProgram -lRC $project_dir
+rug edit Upgrade -lRC $project_dir
 #rug edit AddButton button_text="Hello Again" button_message=HelloAgain -lRC $project_dir
 #rug edit AddTextInput input_name=advancedInput -lRC $project_dir
 #rug edit SubscribeToClicks -lRC $project_dir
@@ -30,4 +30,5 @@ rug edit OnEnter enter_message=Save -lRC $project_dir
 cd $project_dir
 ./build --yes
 cd -
-rm -rf $project_parent_dir
+#rm -rf $project_parent_dir
+echo $project_parent_dir

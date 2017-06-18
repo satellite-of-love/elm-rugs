@@ -7,7 +7,7 @@ const CERTAIN_INPUT_FILEPATH = "src/Main.elm";
 
 // there should be a better way, to put this in a real Elm file,
 // I don't have the brainspace to find that way right now
-export const BEGINNER_PROGRAM = `module BeginnerProgram exposing (..)
+export const BEGINNER_PROGRAM = `module BeginnerProgram exposing (main)
 
 import Html exposing (Html)
 
@@ -65,7 +65,7 @@ main =
         }
 `;
 
-const CERTAIN_FILE_CONTENT_AFTER = `module BeginnerProgram exposing (..)
+export const BEGINNER_PROGRAM_WITH_TEXT_INPUT = `module BeginnerProgram exposing (main)
 
 import Html exposing (Html)
 import Html.Attributes
@@ -151,9 +151,9 @@ When("the AddTextInput is run", (p: Project, world) => {
 
 Then("the input field has been added", (p: Project) => {
     const after = p.findFile(CERTAIN_INPUT_FILEPATH).content;
-    const passing = (after === CERTAIN_FILE_CONTENT_AFTER);
+    const passing = (after === BEGINNER_PROGRAM_WITH_TEXT_INPUT);
     if (!passing) {
-       showResult(CERTAIN_FILE_CONTENT_AFTER, after, CERTAIN_INPUT_FILEPATH);
+       showResult(BEGINNER_PROGRAM_WITH_TEXT_INPUT, after, CERTAIN_INPUT_FILEPATH);
     }
     return passing;
 });

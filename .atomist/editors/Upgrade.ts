@@ -1,29 +1,28 @@
-import { File, Project } from "@atomist/rug/model/Core";
-import { Editor, Parameter, Tags } from "@atomist/rug/operations/Decorators";
-import { EditProject } from "@atomist/rug/operations/ProjectEditor";
-import { Pattern } from "@atomist/rug/operations/RugOperation";
+import {Project} from "@atomist/rug/model/Core";
+import {Editor, Tags, Parameter} from "@atomist/rug/operations/Decorators";
+import {EditProject} from "@atomist/rug/operations/ProjectEditor";
+import {ElmProgram} from "./elm/ElmProgram";
+import {Pattern} from "@atomist/rug/operations/RugOperation";
 
 /**
- * Sample TypeScript editor used by AddUpgrade.
+ * Upgradinate
  */
 @Editor("Upgrade", "from beginner program to advanced")
 @Tags("documentation")
 export class Upgrade implements EditProject {
 
     @Parameter({
-        displayName: "Some Input",
-        description: "example of how to specify a parameter using decorators",
+        displayName: "Main file",
+        description: "where is main?",
         pattern: Pattern.any,
-        validInput: "a description of the valid input",
-        minLength: 1,
-        maxLength: 100,
+        validInput: "path to a .elm file",
     })
-    public inputParameter: string;
+    public mainFile: string = "src/Main.elm";
+
 
     public edit(project: Project) {
-        const certainFile = project.findFile("hello.txt");
-        const newContent = certainFile.content.replace(/the world/, this.inputParameter);
-        certainFile.setContent(newContent);
+        const elmProgram = ElmProgram.parse(project, this.mainFile);
+        elmProgram.upgrade();
     }
 }
 
