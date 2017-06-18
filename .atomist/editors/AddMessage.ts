@@ -11,19 +11,23 @@ import { Pattern } from "@atomist/rug/operations/RugOperation";
 export class AddMessage implements EditProject {
 
     @Parameter({
-        displayName: "Some Input",
-        description: "example of how to specify a parameter using decorators",
+        displayName: "Message Constructor",
+        description: "declare the new message type",
         pattern: Pattern.any,
-        validInput: "a description of the valid input",
-        minLength: 1,
-        maxLength: 100,
+        validInput: "an Elm type name plus type parameters",
     })
-    public inputParameter: string;
+    public messageConstructor: string; // lol, found a word I can't use as a field: constructor
+
+    @Parameter({
+        displayName: "Deconstructor",
+        description: "pattern that will match this message, for the update function",
+        pattern: Pattern.any,
+        validInput: "an Elm pattern",
+    })
+    public deconstructor: string;
 
     public edit(project: Project) {
         const certainFile = project.findFile("hello.txt");
-        const newContent = certainFile.content.replace(/the world/, this.inputParameter);
-        certainFile.setContent(newContent);
     }
 }
 

@@ -80,10 +80,10 @@ Given("an Elm program with only NoOp", (p: Project, world) => {
     p.addFile(CERTAIN_INPUT_FILEPATH, CERTAIN_FILE_CONTENT_BEFORE);
 });
 
-When("AddMessages is run", (p: Project, world) => {
+When("AddMessage is run", (p: Project, world) => {
     const w = world as ProjectScenarioWorld;
-    const editor = w.editor("AddMessages");
-    w.editWith(editor, {constructor: "Banana String", deconstructor: "Banana color"});
+    const editor = w.editor("AddMessage");
+    w.editWith(editor, {messageConstructor: "Banana String", deconstructor: "Banana color"});
 });
 
 Given("an Elm program with a message", (p: Project, world) => {
