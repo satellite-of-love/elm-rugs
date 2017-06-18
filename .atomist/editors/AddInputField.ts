@@ -52,7 +52,7 @@ export class AddInputField implements EditProject {
         elmProgram.addImport("Html.Attributes");
         elmProgram.addFunction(
             `${fieldName}Input : Model -> Html Msg
-${fieldName}Input  model =
+${fieldName}Input model =
     Html.input
         [ Html.Attributes.id "${fieldName}"
         , Html.Events.onInput ${constructorName}

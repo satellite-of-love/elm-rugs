@@ -140,7 +140,7 @@ export class ElmProgram {
                     console.log(TreePrinter.drawTree(this.moduleNode));
                     throw new Error("Can't find the model at all");
                 }
-                emptyModel[0].update("{ " + newFieldType + " } ");
+                emptyModel[0].update("{ " + newFieldType + " }");
             } else {
                 const last = fields[fields.length - 1];
                 last.update(last.value() + ", " + newFieldType);
@@ -238,9 +238,9 @@ export class ElmProgram {
 
         // @rod this should check the indention, match what's on lastReaction.pattern. We have that functionality, how to use it?
         lastReaction.body.update(lastReaction.body.value() + `
-        
-        ${params.deconstructor} -> 
-            ${params.updatedModel}`)
+
+        ${params.deconstructor} ->
+            ${params.updatedModel}`);
         // TODO: handle advanced program
 
         this.reparse();

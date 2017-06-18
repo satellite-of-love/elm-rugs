@@ -68,6 +68,7 @@ main =
 const CERTAIN_FILE_CONTENT_AFTER = `module BeginnerProgram exposing (..)
 
 import Html exposing (Html)
+import Html.Attributes
 import Html.Events
 
 
@@ -120,6 +121,9 @@ update msg model =
     case msg of
         NoOp ->
             model
+
+        NewLabel newLabel ->
+            { model | newLabel = newLabel }
 
 
 
