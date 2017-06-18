@@ -5,11 +5,11 @@ import {Pattern} from "@atomist/rug/operations/RugOperation";
 import {ElmProgram} from "./elm/ElmProgram";
 
 /**
- * Sample TypeScript editor used by AddAddInputField.
+ * Sample TypeScript editor used by AddAddTextInput.
  */
-@Editor("AddInputField", "add a text input field to an Elm program")
+@Editor("AddTextInput", "add a text input field to an Elm program")
 @Tags("documentation")
-export class AddInputField implements EditProject {
+export class AddTextInput implements EditProject {
 
     @Parameter({
         displayName: "Name of the field",
@@ -63,4 +63,4 @@ ${fieldName}Input model =
     }
 }
 
-export const addInputField = new AddInputField();
+export const addTextInput = new AddTextInput();

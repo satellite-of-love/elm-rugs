@@ -20,12 +20,12 @@ rug edit AddImport import="Html.Attributes" -lRC $project_dir -X
 rug edit AddFunction name="drawLabel" type="{ text : String } -> Html Never" parameters="{ text }" body="Html.label [] [ Html.text text ]" -lRC $project_dir -X
 rug edit ChangeMain newBody="Html.main_ [] [ Html.canvas [ Html.Attributes.style [ ( \"backgroundImage\", \"url(elmbp.png)\" ) ] ] [ drawLabel { text = \"yes\" }] ]" -lRC $project_dir -X
 rug edit UpgradeToBeginnerProgram -lRC $project_dir
-#rug -lRC $project_dir edit AddButton button_text="Hello There" button_message=HelloThere
-#rug -lRC $project_dir edit AddTextInput input_name=beginnerInput
-#rug -lRC $project_dir edit UpgradeToProgram
-#rug -lRC $project_dir edit AddButton button_text="Hello Again" button_message=HelloAgain
-#rug -lRC $project_dir edit AddTextInput input_name=advancedInput
-#rug -lRC $project_dir edit SubscribeToClicks
+rug edit AddTextInput input_name=beginnerInput -lRC $project_dir
+#rug edit OnEnter enter_message=Save -lRC $project_dir
+#rug edit UpgradeToProgram -lRC $project_dir
+#rug edit AddButton button_text="Hello Again" button_message=HelloAgain -lRC $project_dir
+#rug edit AddTextInput input_name=advancedInput -lRC $project_dir
+#rug edit SubscribeToClicks -lRC $project_dir
 
 cd $project_dir
 ./build --yes

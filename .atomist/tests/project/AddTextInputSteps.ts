@@ -143,9 +143,9 @@ Given("a beginner Elm project with no input field", (p: Project, world) => {
     p.addFile(CERTAIN_INPUT_FILEPATH, CERTAIN_FILE_CONTENT_BEFORE);
 });
 
-When("the AddInputField is run", (p: Project, world) => {
+When("the AddTextInput is run", (p: Project, world) => {
     const w = world as ProjectScenarioWorld;
-    const editor = w.editor("AddInputField");
+    const editor = w.editor("AddTextInput");
     w.editWith(editor, { name: "newLabel" });
 });
 
