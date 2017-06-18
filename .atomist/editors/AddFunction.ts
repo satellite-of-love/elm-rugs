@@ -48,23 +48,42 @@ export class AddFunction implements EditProject {
     })
     public parameters: string = "";
 
+    @Parameter({
+        displayName: "Section header",
+        description: "section to put the new function in; default is end of file",
+        pattern: Pattern.any,
+        validInput: "typically VIEW or MODEL or MESSAGES or MAIN",
+        minLength: 1,
+    })
+    public section: string = "`end of file`";
+
     // TODO: parameterize this
     public targetFile = "src/Main.elm";
 
     // TODO: support a section to add it to
 
     public edit(project: Project) {
-        const certainFile = project.findFile(this.targetFile);
-        if (certainFile === null) {
-            throw "Can't find file ${this.targetFile}";
-        }
-
         const parameterString = this.parameters === "" ? "" : (this.parameters + " ");
 
         const newFunction = `
 ${this.name} : ${this.type}
 ${this.name} ${parameterString}= ${this.body}
 `;
+
+        if (this.section === "`end of file`") {
+            this.putAtEndOfFile(project, this.targetFile, newFunction)
+        }
+
+    }
+
+    putAtEndOfFile(project: Project, path: string, newFunction: string) {
+        const certainFile = project.findFile(path);
+        if (certainFile === null) {
+            throw "Can't find file ${this.targetFile}";
+        }
+
+
+
 
         const newContent = certainFile.content + newFunction;
         certainFile.setContent(newContent);

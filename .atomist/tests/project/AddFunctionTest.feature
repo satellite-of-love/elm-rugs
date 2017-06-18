@@ -10,3 +10,10 @@ Feature: Make sure the sample TypeScript Editor has some tests
     Then parameters were valid
     Then changes were made
     Then the Elm program has the new function
+
+  Scenario: AddFunction should add a function to the specified section
+    Given a project with an Elm program with sections
+    When the AddFunction is run with section VIEW
+    Then parameters were valid
+    Then changes were made
+    Then the Elm program has the new function in the VIEW section
