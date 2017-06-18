@@ -10,9 +10,7 @@ type alias Model =
     {}
 
 
-model : Model
-
-
+init : Model
 init =
     {}
 

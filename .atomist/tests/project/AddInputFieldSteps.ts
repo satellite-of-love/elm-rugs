@@ -19,9 +19,7 @@ type alias Model =
     {}
 
 
-model : Model
-
-
+init : Model
 init =
     {}
 
@@ -80,9 +78,7 @@ type alias Model =
     { newLabel : String }
 
 
-model : Model
-
-
+init : Model
 init =
     { newLabel = "" }
 
