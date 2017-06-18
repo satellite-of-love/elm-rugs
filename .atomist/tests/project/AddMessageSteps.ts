@@ -35,7 +35,7 @@ const CERTAIN_FILE_CONTENT_AFTER = `module Main exposing (main)
 
 type Msg
     = NoOp
-    | Banana String
+    | Strawberry Int
 
 
 -- UPDATE
@@ -46,7 +46,7 @@ update msg model =
     case msg of
         NoOp ->
             model
-        Banana color ->
+        Strawberry seeds ->
             model
 `;
 
@@ -94,16 +94,16 @@ Given("an Elm program with a message", (p: Project, world) => {
 Then("we can detect a message", (p: Project, world) => {
     const elmProgram = ElmProgram.parse(p, CERTAIN_INPUT_FILEPATH);
 
-    function banana(bananaMsg: Elm.Message) {
-        return bananaMsg.constructor.value() === "Banana String" &&
-            bananaMsg.name.value() === "Banana" &&
+    function strawberry(bananaMsg: Elm.Message) {
+        return bananaMsg.constructor.value() === "Strawberry Int" &&
+            bananaMsg.name.value() === "Strawberry" &&
             bananaMsg.reactions.length === 1 &&
-            bananaMsg.reactions[0].deconstructor.value() === "Banana color" &&
+            bananaMsg.reactions[0].deconstructor.value() === "Strawberry seeds" &&
             bananaMsg.reactions[0].body.value() === "model";
     }
 
     const result: boolean = elmProgram.messages.length === 2 &&
-        banana(elmProgram.messages[1]);
+        strawberry(elmProgram.messages[1]);
 
     if (!result) {
         console.log("HERE IS THE ONE JESS where is the Banana");
