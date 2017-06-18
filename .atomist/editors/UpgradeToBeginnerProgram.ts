@@ -1,9 +1,7 @@
-import { Project } from "@atomist/rug/model/Project";
-import { Editor, Parameter, Tags } from "@atomist/rug/operations/Decorators";
-import { EditProject } from "@atomist/rug/operations/ProjectEditor";
-import { Pattern } from "@atomist/rug/operations/RugOperation";
-import { TextTreeNode } from "@atomist/rug/tree/PathExpression";
-import { drawTree } from "./TreePrinter";
+import {Project} from "@atomist/rug/model/Project";
+import {Editor, Tags} from "@atomist/rug/operations/Decorators";
+import {EditProject} from "@atomist/rug/operations/ProjectEditor";
+import {TextTreeNode} from "@atomist/rug/tree/PathExpression";
 
 /**
  * Sample TypeScript editor used by AddUpgradeToBeginnerProgram.
