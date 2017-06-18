@@ -14,8 +14,10 @@ main : Html Never
 main =
     Html.div [] []
 
+
 diagram : String
-diagram = "elmbp.png"
+diagram =
+    "elmbp.png"
 `;
 
 When("the AddFunction is run", (p: Project, world) => {
@@ -45,19 +47,21 @@ const SECTIONED_FILE_CONTENT_BEFORE = `module Main exposing (main)
 import Html exposing (Html)
 
 
----- VIEW
+-- VIEW
 
 
-view = "blah blah"
+view = 
+    "blah blah"
 
 
 
----- MAIN
+-- MAIN
 
 
 main : Html Never
 main =
     Html.div [] []
+
 
 diagram : String
 diagram = "elmbp.png"
@@ -68,7 +72,7 @@ const SECTIONED_FILE_CONTENT_AFTER = `module Main exposing (main)
 import Html exposing (Html)
 
 
----- VIEW
+-- VIEW
 
 
 view = 
@@ -77,16 +81,17 @@ view =
 
 newFunction : String -> String
 newFunction carrot =
-   carrot ++ "blah blah"
+    carrot ++ "blah blah"
 
 
 
----- MAIN
+-- MAIN
 
 
 main : Html Never
 main =
     Html.div [] []
+
 
 diagram : String
 diagram = "elmbp.png"
@@ -105,7 +110,8 @@ When("the AddFunction is run with section VIEW", (p: Project, world) => {
         name: "newFunction",
         type: "String -> String",
         body: `carrot ++ "blah blah"`,
-        section: "VIEW"
+        section: "VIEW",
+        parameters: "carrot"
     });
 });
 

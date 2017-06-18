@@ -2,6 +2,7 @@ import { File, Project } from "@atomist/rug/model/Core";
 import { Editor, Parameter, Tags } from "@atomist/rug/operations/Decorators";
 import { EditProject } from "@atomist/rug/operations/ProjectEditor";
 import { Pattern } from "@atomist/rug/operations/RugOperation";
+import {ElmProgram} from "./elm/ElmProgram";
 
 /**
  * Sample TypeScript editor used by AddAddFunction.
@@ -63,15 +64,18 @@ export class AddFunction implements EditProject {
     // TODO: support a section to add it to
 
     public edit(project: Project) {
-        const parameterString = this.parameters === "" ? "" : (this.parameters + " ");
 
-        const newFunction = `
-${this.name} : ${this.type}
-${this.name} ${parameterString}= ${this.body}
-`;
+        const parameterString = this.parameters === "" ? "" : (this.parameters + " ");
+        const newFunction = `${this.name} : ${this.type}
+${this.name} ${parameterString}=
+    ${this.body}`;
 
         if (this.section === "`end of file`") {
             this.putAtEndOfFile(project, this.targetFile, newFunction)
+        } else {
+            const elmProgram = ElmProgram.parse(project,
+                this.targetFile);
+            elmProgram.addFunction(newFunction, this.section)
         }
 
     }
@@ -82,10 +86,7 @@ ${this.name} ${parameterString}= ${this.body}
             throw "Can't find file ${this.targetFile}";
         }
 
-
-
-
-        const newContent = certainFile.content + newFunction;
+        const newContent = certainFile.content + "\n\n" + newFunction + "\n";
         certainFile.setContent(newContent);
     }
 }

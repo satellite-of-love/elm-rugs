@@ -1,4 +1,4 @@
-import {Project} from "@atomist/rug/model/Project";
+import {Project, File} from "@atomist/rug/model/Core";
 import {PathExpressionEngine, TextTreeNode} from "@atomist/rug/tree/PathExpression";
 import * as TreePrinter from "../../editors/TreePrinter";
 import * as _ from "lodash";
@@ -20,6 +20,11 @@ export interface Message {
     reactions: ReactionToMessage[];
 }
 
+export interface Section {
+    name: TextTreeNode,
+    body: TextTreeNode
+}
+
 export class ElmProgram {
 
     public static parse(project: Project, filepath: string = "src/Main.elm"): ElmProgram {
@@ -33,9 +38,10 @@ export class ElmProgram {
     private reparse: () => void;
     private moduleNode: TextTreeNode;
 
-    private constructor(project: Project, filepath: string) {
+    private constructor(project: Project, private filepath: string) {
         this.pxe = project.context.pathExpressionEngine;
         this.reparse = () => {
+            trailingNewline(project.findFile(filepath));
             this.moduleNode =
                 this.pxe.scalar<Project, TextTreeNode>(
                     project,
@@ -197,6 +203,34 @@ export class ElmProgram {
         this.reparse();
     }
 
+    /*
+     * sections
+     */
+    public get sections(): Section[] {
+        const sectionNodes = this.descend("//section")
+
+        return sectionNodes.map((s: any) => {
+                return {
+                    name: s.sectionHeader,
+                    body: s.sectionContent
+                }
+            }
+        )
+    }
+
+    public addFunction(functionText: string, sectionName: string) {
+        const sections = this.sections.filter(s => s.name.value() === sectionName);
+        if (sections.length === 0) {
+            throw new Error(`Section ${sectionName} not found in ${this.filepath}`)
+        }
+        const sectionOfInterest: Section = sections[0];
+
+        sectionOfInterest.body.update(
+            sectionOfInterest.body.value() + "\n\n\n" + functionText);
+
+        this.reparse();
+    }
+
     private descend(pe: string): TextTreeNode[] {
         return this.pxe.evaluate<TextTreeNode, TextTreeNode>(this.moduleNode, pe).matches;
     }
@@ -208,4 +242,9 @@ function last<T>(arr: T[], name: string = "an"): T {
         throw new Error(`${name} array was empty`)
     }
     return arr[arr.length - 1];
+}
+
+function trailingNewline(f: File) {
+    const content = f.content;
+    if (!f.content.match(/\n$/)) { f.setContent(content + "\n"); }
 }
