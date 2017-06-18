@@ -1,7 +1,8 @@
-import { File, Project } from "@atomist/rug/model/Core";
-import { Editor, Parameter, Tags } from "@atomist/rug/operations/Decorators";
-import { EditProject } from "@atomist/rug/operations/ProjectEditor";
-import { Pattern } from "@atomist/rug/operations/RugOperation";
+import {File, Project} from "@atomist/rug/model/Core";
+import {Editor, Parameter, Tags} from "@atomist/rug/operations/Decorators";
+import {EditProject} from "@atomist/rug/operations/ProjectEditor";
+import {Pattern} from "@atomist/rug/operations/RugOperation";
+import {ElmProgram} from "./elm/ElmProgram";
 
 /**
  * Sample TypeScript editor used by AddAddMessage.
@@ -27,7 +28,11 @@ export class AddMessage implements EditProject {
     public deconstructor: string;
 
     public edit(project: Project) {
-        const certainFile = project.findFile("hello.txt");
+        const elmProgram = ElmProgram.parse(project, "src/Main.elm");
+        elmProgram.addMessage({
+            constructor: this.messageConstructor,
+            deconstructor: this.deconstructor
+        })
     }
 }
 

@@ -115,31 +115,12 @@ export class ElmProgram {
     }
 
 
-    /*
-     *
-     */
-    get messages(): Message[] {
-        /*
-         clause
-         ├─┬ deconstructorPattern
-         | ├─┬ constructorName
-         | | └── component is Yes
-         | └── identifier is string
-         └─┬ result
-         └─┬ recordLiteral
-         ├── startingRecord is model
-         └─┬ recordLiteralField
-         ├── fieldName is messages
-         └─┬ fieldValue
-         └─┬ listLiteral
-         └─┬ listItem
-         └── functionName is string
-         */
+    get updateClauses(): ReactionToMessage[] {
         const reactions = this.descend(
             "//functionDeclaration[@functionName='update']/body//caseExpression[/pivot[@value='msg']]/clause");
         const messageReactions = reactions.map((clause: any) => {
 
-               // console.log(TreePrinter.drawTree(clause));
+                // console.log(TreePrinter.drawTree(clause));
                 if (clause.pattern.deconstructor &&
                     clause.pattern.deconstructor.constructorName) {
                     return {
@@ -158,6 +139,15 @@ export class ElmProgram {
                 }
             }
         );
+        return messageReactions;
+    }
+
+    /*
+     *
+     */
+    get messages(): Message[] {
+
+        const messageReactions = this.updateClauses;
         const reactionsMap = _.groupBy(messageReactions, (r) => r.name.value());
 
         /*
@@ -172,7 +162,7 @@ export class ElmProgram {
         const values = this.descend(
             "//unionTypeDeclaration[@typeName='Msg']//constructor");
         const messages = values.map((ttn: any) => {
-            const name = ttn.typeReference.typeName.value()
+            const name = ttn.typeReference.typeName.value();
             return {
                 constructor: ttn,
                 name: ttn.typeReference.typeName,
@@ -181,6 +171,24 @@ export class ElmProgram {
         });
 
         return messages;
+    }
+
+    public addMessage(params: {constructor: string, deconstructor: string}) {
+        const currentMessages = this.messages;
+        const lastMessage = currentMessages[currentMessages.length - 1];
+
+        lastMessage.constructor.update(lastMessage.constructor.value() + `
+    | ${params.constructor}`);
+
+        const reactions = this.updateClauses;
+        const lastReaction = reactions[reactions.length - 1];
+
+        // @rod this should check the indention, match what's on lastReaction.pattern. We have that functionality, how to use it?
+        lastReaction.body.update(lastReaction.body.value() + `
+        
+        ${params.deconstructor} -> 
+            model`)
+        // TODO: handle advanced program
     }
 
     private descend(pe: string): TextTreeNode[] {
