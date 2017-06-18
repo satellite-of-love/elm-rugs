@@ -224,9 +224,12 @@ export class ElmProgram {
 
     public addMessage(params: {
         constructor: string,
-        deconstructor: string,
-        updatedModel: string
+        deconstructor?: string,
+        updatedModel?: string
     }) {
+        const deconstructor = params.deconstructor || params.constructor;
+        const updatedModel = params.updatedModel || 'model';
+        // TODO: handle advanced program
         const lastMessage = last(this.messages, "messages");
 
         lastMessage.constructor.update(lastMessage.constructor.value() + `
@@ -239,9 +242,8 @@ export class ElmProgram {
         // @rod this should check the indention, match what's on lastReaction.pattern. We have that functionality, how to use it?
         lastReaction.body.update(lastReaction.body.value() + `
 
-        ${params.deconstructor} ->
-            ${params.updatedModel}`);
-        // TODO: handle advanced program
+        ${deconstructor} ->
+            ${updatedModel}`);
 
         this.reparse();
     }
