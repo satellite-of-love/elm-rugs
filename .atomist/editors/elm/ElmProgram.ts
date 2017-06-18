@@ -274,6 +274,54 @@ export class ElmProgram {
         this.reparse();
     }
 
+    /*
+     * Imports
+     */
+    public addImport(name: string) {
+        const newImport = `import ${name}`;
+
+        function importCompare(a: string, b: string): number {
+          //  console.log(`comparing ${a} to ${b}`)
+            if (b.indexOf(a) === 0) {
+                // a is contained within b. put b later
+                return -1;
+            }
+            if (a.indexOf(b) === 0) {
+                return 1;
+            }
+            if (a < b) {
+                return -1;
+            }
+            if (b < a) {
+                return 1;
+            }
+            return 0;
+        }
+
+        const imports = this.descend("//import");
+        const before = imports.filter((i: any) => importCompare(i.importName.value(), name) < 0);
+        const same = imports.filter((i: any) => i.importName.value() === name);
+        const after = imports.filter((i: any) => 0 < importCompare(i.importName.value(), name));
+
+        if (same.length > 0) {
+            // import already present
+            return;
+        }
+
+        if (before.length > 0) {
+            // add it after the last earlier one.
+            // so if they're alphabetical, they'll stay alphabetical.
+            const last = before[before.length - 1];
+            last.update(last.value() + "\n" + newImport);
+        } else if (after.length > 0) {
+            const first = after[0];
+            first.update(newImport + "\n" + first.value());
+        }
+        // TODO: what if there are 0 imports
+
+        this.reparse();
+    }
+
     private descend(pe: string): TextTreeNode[] {
         return this.pxe.evaluate<TextTreeNode, TextTreeNode>(this.moduleNode, pe).matches;
     }

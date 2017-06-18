@@ -149,7 +149,12 @@ Then("the input field has been added", (p: Project, world) => {
     const after = p.findFile(CERTAIN_INPUT_FILEPATH).content;
     const passing = (after === CERTAIN_FILE_CONTENT_AFTER);
     if (!passing) {
-        console.log(`FAILURE: ${CERTAIN_INPUT_FILEPATH} --->\n${after}\n<---`);
+        console.log(JSON.stringify(CERTAIN_FILE_CONTENT_AFTER));
+        console.log(JSON.stringify(after));
+        console.log(
+            `FAILURE: ${CERTAIN_INPUT_FILEPATH} --->\n${
+                after.replace(/^$/mg, "[blank line]")
+                }\n<---`);
     }
     return passing;
 });

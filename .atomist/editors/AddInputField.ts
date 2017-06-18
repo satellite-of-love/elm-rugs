@@ -48,6 +48,8 @@ export class AddInputField implements EditProject {
             updatedModel: `{ model | ${fieldName} = ${fieldName} }`
         })
 
+        elmProgram.addImport("Html.Events");
+        elmProgram.addImport("Html.Attributes");
         elmProgram.addFunction(
             `${fieldName}Input : Model -> Html Msg
 ${fieldName}Input  model =

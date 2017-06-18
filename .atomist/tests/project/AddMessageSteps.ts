@@ -109,9 +109,7 @@ Then("we can detect a message", (p: Project, world) => {
         strawberry(elmProgram.messages[1]);
 
     if (!result) {
-        console.log("HERE IS THE ONE JESS where is the Banana");
         printFields(elmProgram);
-        console.log("---- END ----")
     }
     return result;
 });
