@@ -3,7 +3,7 @@ import {
     Given, ProjectScenarioWorld, Then, When,
 } from "@atomist/rug/test/project/Core";
 
-const CERTAIN_INPUT_FILEPATH = "hello.txt";
+const CERTAIN_INPUT_FILEPATH = "src/Main.elm";
 
 // there should be a better way, to put this in a real Elm file,
 // I don't have the brainspace to find that way right now
@@ -135,7 +135,7 @@ main =
         }
 `;
 
-Given("a project with a certain file", (p: Project, world) => {
+Given("a beginner Elm project with no input field", (p: Project, world) => {
     p.addFile(CERTAIN_INPUT_FILEPATH, CERTAIN_FILE_CONTENT_BEFORE);
 });
 
@@ -145,7 +145,7 @@ When("the AddInputField is run", (p: Project, world) => {
     w.editWith(editor, { name: "newLabel" });
 });
 
-Then("that certain file looks different", (p: Project, world) => {
+Then("the input field has been added", (p: Project, world) => {
     const after = p.findFile(CERTAIN_INPUT_FILEPATH).content;
     const passing = (after === CERTAIN_FILE_CONTENT_AFTER);
     if (!passing) {

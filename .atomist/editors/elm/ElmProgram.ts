@@ -25,6 +25,8 @@ export interface Section {
     body: TextTreeNode
 }
 
+export type ProgramLevel = "static" | "beginner" | "advanced"
+
 export class ElmProgram {
 
     public static parse(project: Project, filepath: string = "src/Main.elm"): ElmProgram {
@@ -49,6 +51,45 @@ export class ElmProgram {
         };
         this.reparse();
 
+    }
+
+    get programLevel(): ProgramLevel {
+        const mainType = this.getMainFunctionTypeName();
+
+        if (mainType === "Html") {
+            return "static";
+        } else if (mainType === "Program") {
+            const mainBody = this.getMainFunctionBody();
+            return (mainBody.indexOf("beginnerProgram") >= 0) ?
+                "beginner" :
+                "advanced"
+        } else {
+            throw new Error("Unhandled type of main: " + mainType);
+        }
+    }
+
+    /*
+     * this gets only the name of the type of main, not its type parameters
+     */
+    private getMainFunctionTypeName(): string {
+        const typeNodes: any[] =
+            this.descend(`//functionDeclaration/typeDeclaration[@functionName='main']/declaredType`);
+        if (typeNodes.length == 0) {
+            throw new Error("Can't find the main function's type");
+        }
+        if (!(typeNodes[0].typeReference &&
+            typeNodes[0].typeReference.typeName)) {
+            throw new Error("Unexpected structure of main's type:\n" + TreePrinter.drawTree(typeNodes[0]));
+        }
+        return typeNodes[0].typeReference.typeName.value();
+    }
+
+    private getMainFunctionBody(): string {
+        const mainBodyNodes = this.descend(`//functionDeclaration[@functionName='main']/body`)
+        if (mainBodyNodes.length === 0) {
+            throw new Error("Can't find the main function's body");
+        }
+        return mainBodyNodes[0].value()
     }
 
     /*
@@ -95,7 +136,8 @@ export class ElmProgram {
             const fields = this.descend("//typeAlias[@typeName='Model']/definition/recordType/recordTypeField");
             if (fields.length === 0) {
                 const emptyModel = this.descend("//typeAlias[@typeName='Model']/definition/recordType");
-                if (emptyModel.length !== 1) {
+                if (emptyModel.length < 1) {
+                    console.log(TreePrinter.drawTree(this.moduleNode));
                     throw new Error("Can't find the model at all");
                 }
                 emptyModel[0].update("{ " + newFieldType + " } ");
@@ -118,6 +160,7 @@ export class ElmProgram {
                 last.update(last.value() + ", " + newFieldValue);
             }
         }
+        this.reparse();
     }
 
 
@@ -246,5 +289,7 @@ function last<T>(arr: T[], name: string = "an"): T {
 
 function trailingNewline(f: File) {
     const content = f.content;
-    if (!f.content.match(/\n$/)) { f.setContent(content + "\n"); }
+    if (!f.content.match(/\n$/)) {
+        f.setContent(content + "\n");
+    }
 }
