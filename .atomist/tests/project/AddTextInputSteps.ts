@@ -7,7 +7,7 @@ const CERTAIN_INPUT_FILEPATH = "src/Main.elm";
 
 // there should be a better way, to put this in a real Elm file,
 // I don't have the brainspace to find that way right now
-const CERTAIN_FILE_CONTENT_BEFORE = `module BeginnerProgram exposing (..)
+export const BEGINNER_PROGRAM = `module BeginnerProgram exposing (..)
 
 import Html exposing (Html)
 
@@ -139,8 +139,8 @@ main =
         }
 `;
 
-Given("a beginner Elm project with no input field", (p: Project, world) => {
-    p.addFile(CERTAIN_INPUT_FILEPATH, CERTAIN_FILE_CONTENT_BEFORE);
+Given("a beginner Elm project", (p: Project, world) => {
+    p.addFile(CERTAIN_INPUT_FILEPATH, BEGINNER_PROGRAM);
 });
 
 When("the AddTextInput is run", (p: Project, world) => {
