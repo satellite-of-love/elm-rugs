@@ -1,21 +1,20 @@
 module BeginnerProgram exposing (..)
 
 import Html exposing (Html)
-import Html.Events
 
 
 -- MODEL
 
 
 type alias Model =
-    { newLabel : String }
+    {}
 
 
 model : Model
 
 
 init =
-    { newLabel = "" }
+    {}
 
 
 
@@ -24,7 +23,6 @@ init =
 
 type Msg
     = NoOp
-    | NewLabel String
 
 
 
@@ -34,15 +32,6 @@ type Msg
 view : Model -> Html Msg
 view model =
     Html.div [] []
-
-
-newLabelInput : Model -> Html Msg
-newLabelInput model =
-    Html.input
-        [ Html.attributes.id "newLabel"
-        , Html.Events.onInput NewLabel
-        , Html.Attributes.value model.newLabel
-        ]
 
 
 
