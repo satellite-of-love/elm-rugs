@@ -108,6 +108,7 @@ newLabelInput model =
         , Html.Events.onInput NewLabel
         , Html.Attributes.value model.newLabel
         ]
+        []
 
 
 
