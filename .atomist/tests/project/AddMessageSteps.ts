@@ -25,6 +25,11 @@ update msg model =
     case msg of
         NoOp ->
             model
+
+
+main : Program Never Msg Model
+main = 
+    Html.beginnerProgram {}
 `;
 
 const CERTAIN_FILE_CONTENT_AFTER = `module Main exposing (main)
@@ -48,6 +53,11 @@ update msg model =
             model
         Strawberry seeds ->
             model
+
+
+main : Program Never Msg Model
+main = 
+    Html.beginnerProgram {}
 `;
 
 const TWO_FIELDS = `module Main exposing (main)

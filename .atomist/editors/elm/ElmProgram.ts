@@ -2,6 +2,7 @@ import {Project, File} from "@atomist/rug/model/Core";
 import {PathExpressionEngine, TextTreeNode} from "@atomist/rug/tree/PathExpression";
 import * as TreePrinter from "../../editors/TreePrinter";
 import * as _ from "lodash";
+import {draw, drawTree} from "../TreePrinter";
 
 interface Field {
     name: string;
@@ -63,6 +64,10 @@ export class ElmProgram {
 
     get programLevel(): ProgramLevel {
         const mainFunction = this.getFunction("main");
+        if (mainFunction == null) {
+            throw new Error(`Unable to analyse ${this.filepath}. No main function found`)
+        }
+
         const mainType = (mainFunction.declaredType as any).typeReference.typeName.value();
 
         if (mainType === "Html") {
@@ -100,7 +105,7 @@ export class ElmProgram {
 
         const reactions = this.updateClauses;
         reactions.forEach(r =>
-           r.body.update(`( ${r.body.value()}, Cmd.none )`)
+            r.body.update(`( ${r.body.value()}, Cmd.none )`)
         );
         this.reparse();
 
@@ -209,8 +214,18 @@ export class ElmProgram {
             "//functionDeclaration[@functionName='update']/body//caseExpression[/pivot[@value='msg']]/clause");
         const messageReactions = reactions.map((clause: any) => {
 
-                // console.log(TreePrinter.drawTree(clause));
+                //console.log("A clause:" + drawTree(clause));
+
+                // not sure why we get two constructorNames for `Click Nothing`
                 if (clause.pattern.deconstructor &&
+                    clause.pattern.deconstructor.constructorName &&
+                    Array.isArray(clause.pattern.deconstructor.constructorName)) {
+                    return {
+                        name: clause.pattern.deconstructor.constructorName[0],
+                        deconstructor: clause.pattern,
+                        body: clause.result
+                    }
+                } else if (clause.pattern.deconstructor &&
                     clause.pattern.deconstructor.constructorName) {
                     return {
                         name: clause.pattern.deconstructor.constructorName,
@@ -235,10 +250,12 @@ export class ElmProgram {
      *
      */
     get messages(): Message[] {
+        console.log("looking for reactions");
 
         const messageReactions = this.updateClauses;
         const reactionsMap = _.groupBy(messageReactions, (r) => r.name.value());
 
+        console.log("got reactions");
         /*
          | ├── [210-218] sectionHeader is MESSAGES
          | └─┬ [221-241] unionTypeDeclaration
@@ -251,6 +268,7 @@ export class ElmProgram {
         const values = this.descend(
             "//unionTypeDeclaration[@typeName='Msg']//constructor");
         const messages = values.map((ttn: any) => {
+            // console.log("a value:\n" + drawTree(ttn));
             const name = ttn.typeReference.typeName.value();
             return {
                 constructor: ttn,
@@ -267,9 +285,16 @@ export class ElmProgram {
         deconstructor?: string,
         updatedModel?: string
     }) {
+        const defaultReaction =
+            this.programLevel === "beginner" ?
+                "model" :
+                "( model, Cmd.none )";
         const deconstructor = params.deconstructor || params.constructor;
-        const updatedModel = params.updatedModel || 'model';
-        // TODO: handle advanced program
+        const updatedModel = params.updatedModel || defaultReaction;
+        const reaction = this.programLevel === "beginner" ?
+            updatedModel :
+            `( ${updatedModel}, Cmd.none )`;
+
         const lastMessage = last(this.messages, "messages");
 
         lastMessage.constructor.update(lastMessage.constructor.value() + `
@@ -283,7 +308,23 @@ export class ElmProgram {
         lastReaction.body.update(lastReaction.body.value() + `
 
         ${deconstructor} ->
-            ${updatedModel}`);
+            ${reaction}`);
+
+        this.reparse();
+    }
+
+    public addSubscription(subscription: string) {
+        const subscriptionsFunction = this.getFunction("subscriptions");
+        if (subscriptionsFunction == null) {
+            throw new Error("Didn't find the subscriptions function");
+        }
+
+        if(subscriptionsFunction.body.value() === "Sub.none") {
+            subscriptionsFunction.body.update(subscription)
+        } else {
+            // TODO
+            throw new Error("please implement")
+        }
 
         this.reparse();
     }

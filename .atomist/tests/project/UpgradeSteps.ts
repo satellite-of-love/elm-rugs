@@ -8,7 +8,7 @@ import {BEGINNER_PROGRAM_WITH_TEXT_INPUT, showResult} from "./AddTextInputSteps"
 const CERTAIN_INPUT_FILEPATH = "src/Main.elm";
 
 
-const CERTAIN_FILE_CONTENT_AFTER = `module BeginnerProgram exposing (main)
+export const ADVANCED_ELM_PROGRAM = `module BeginnerProgram exposing (main)
 
 import Html exposing (Html)
 import Html.Attributes
@@ -106,9 +106,9 @@ Then("we have an advanced Elm project", (p: Project) => {
 
     const after = p.findFile(CERTAIN_INPUT_FILEPATH).content;
     const passing = elmProgram.programLevel === "advanced" &&
-        (after === CERTAIN_FILE_CONTENT_AFTER);
+        (after === ADVANCED_ELM_PROGRAM);
     if (!passing) {
-        showResult(CERTAIN_FILE_CONTENT_AFTER, after, CERTAIN_INPUT_FILEPATH);
+        showResult(ADVANCED_ELM_PROGRAM, after, CERTAIN_INPUT_FILEPATH);
     }
     return passing;
 });

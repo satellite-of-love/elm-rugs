@@ -1,29 +1,42 @@
-import { File, Project } from "@atomist/rug/model/Core";
-import { Editor, Parameter, Tags } from "@atomist/rug/operations/Decorators";
-import { EditProject } from "@atomist/rug/operations/ProjectEditor";
-import { Pattern } from "@atomist/rug/operations/RugOperation";
+import {Project} from "@atomist/rug/model/Core";
+import {Editor, Tags, Parameter} from "@atomist/rug/operations/Decorators";
+import {EditProject} from "@atomist/rug/operations/ProjectEditor";
+import {ElmProgram} from "./elm/ElmProgram";
+import {Pattern} from "@atomist/rug/operations/RugOperation";
 
-/**
- * Sample TypeScript editor used by AddSubscribeToClicks.
- */
+const MOUSE_DEPENDENCY = `"elm-lang/mouse": "1.0.1 <= v < 2.0.0",
+        `;
+
 @Editor("SubscribeToClicks", "add a subscription to mouse clicks")
-@Tags("documentation")
+@Tags("elm")
 export class SubscribeToClicks implements EditProject {
 
     @Parameter({
-        displayName: "Some Input",
-        description: "example of how to specify a parameter using decorators",
+        displayName: "Main file",
+        description: "where is main?",
         pattern: Pattern.any,
-        validInput: "a description of the valid input",
-        minLength: 1,
-        maxLength: 100,
+        validInput: "path to a .elm file",
     })
-    public inputParameter: string;
+    public mainFile: string = "src/Main.elm";
+
 
     public edit(project: Project) {
-        const certainFile = project.findFile("hello.txt");
-        const newContent = certainFile.content.replace(/the world/, this.inputParameter);
-        certainFile.setContent(newContent);
+        const elmPackage = project.findFile("elm-package.json");
+        const newContent = elmPackage.content.replace(
+            `"elm-lang/core"`, MOUSE_DEPENDENCY + `"elm-lang/core"`);
+        elmPackage.setContent(newContent);
+
+        const elmProgram = ElmProgram.parse(project, this.mainFile);
+        elmProgram.addImport("Mouse");
+        elmProgram.addMessage({
+            constructor: "Click Mouse.Position",
+            deconstructor: "Click position",
+            updatedModel: "{ model | lastClick = Just position }"
+        });
+
+        elmProgram.addModelField("lastClick", "Maybe Mouse.Position", "Nothing");
+
+        elmProgram.addSubscription("Mouse.clicks Click")
     }
 }
 
