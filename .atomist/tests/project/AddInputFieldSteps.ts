@@ -104,7 +104,7 @@ view model =
 newLabelInput : Model -> Html Msg
 newLabelInput model =
     Html.input
-        [ Html.attributes.id "newLabel"
+        [ Html.Attributes.id "newLabel"
         , Html.Events.onInput NewLabel
         , Html.Attributes.value model.newLabel
         ]

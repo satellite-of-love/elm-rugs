@@ -52,7 +52,7 @@ export class AddInputField implements EditProject {
             `${fieldName}Input : Model -> Html Msg
 ${fieldName}Input  model =
     Html.input
-        [ Html.attributes.id "${fieldName}"
+        [ Html.Attributes.id "${fieldName}"
         , Html.Events.onInput ${constructorName}
         , Html.Attributes.value model.${fieldName}
         ]
