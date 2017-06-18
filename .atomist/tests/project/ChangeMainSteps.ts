@@ -29,7 +29,7 @@ main =
 otherFn = "blah"
 `;
 
-Given("a project with a certain file", (p: Project, world) => {
+Given("a project with a certain file for ChangeMain", (p: Project, world) => {
     p.addFile(CERTAIN_INPUT_FILEPATH, CERTAIN_FILE_CONTENT_BEFORE);
 });
 
@@ -39,7 +39,7 @@ When("the ChangeMain is run", (p: Project, world) => {
     w.editWith(editor, { newBody: "Html.text \"Hello World\"" });
 });
 
-Then("that certain file looks different", (p: Project, world) => {
+Then("that certain file looks different for ChangeMain", (p: Project, world) => {
     const w = world as ProjectScenarioWorld;
     const after = p.findFile(CERTAIN_INPUT_FILEPATH).content;
     const passing = (after === CERTAIN_FILE_CONTENT_AFTER);

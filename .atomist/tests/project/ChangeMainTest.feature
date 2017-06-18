@@ -5,8 +5,8 @@ Feature: Make sure the sample TypeScript Editor has some tests
 
 
   Scenario: ChangeMain should edit a project correctly
-    Given a project with a certain file
+    Given a project with a certain file for ChangeMain
     When the ChangeMain is run
     Then parameters were valid
     Then changes were made
-    Then that certain file looks different
+    Then that certain file looks different for ChangeMain
