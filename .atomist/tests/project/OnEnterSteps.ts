@@ -9,6 +9,7 @@ const CERTAIN_INPUT_FILEPATH = "src/Main.elm";
 const CERTAIN_FILE_CONTENT_AFTER = `module BeginnerProgram exposing (..)
 
 import Html exposing (Html)
+import Html.Events
 import Json.Decode
 
 

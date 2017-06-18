@@ -5,7 +5,7 @@ import { Pattern } from "@atomist/rug/operations/RugOperation";
 import {ElmProgram} from "./elm/ElmProgram";
 
 
-const ON_ENTER = `onEnter : Msg -> Html.Attributes Msg
+const ON_ENTER = `onEnter : Msg -> Html.Attribute Msg
 onEnter msg =
     let
         isEnter code =
