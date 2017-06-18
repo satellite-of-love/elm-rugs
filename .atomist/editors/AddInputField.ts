@@ -11,18 +11,16 @@ import { Pattern } from "@atomist/rug/operations/RugOperation";
 export class AddInputField implements EditProject {
 
     @Parameter({
-        displayName: "Some Input",
-        description: "example of how to specify a parameter using decorators",
+        displayName: "Name of the field",
+        description: "the model field that will hold the input",
         pattern: Pattern.any,
         validInput: "a description of the valid input",
-        minLength: 1,
-        maxLength: 100,
     })
-    public inputParameter: string;
+    public name: string;
 
     public edit(project: Project) {
         const certainFile = project.findFile("hello.txt");
-        const newContent = certainFile.content.replace(/the world/, this.inputParameter);
+        const newContent = certainFile.content.replace(/the world/, this.name);
         certainFile.setContent(newContent);
     }
 }

@@ -1,7 +1,4 @@
-Feature: Make sure the sample TypeScript Editor has some tests
-  This is the sample Gherkin feature file for the BDD tests of
-  the add a text input field to an Elm program.
-  Feel free to modify and extend to suit the needs of your editor.
+Feature: Add an input field
 
 
   Scenario: AddInputField should edit a project correctly

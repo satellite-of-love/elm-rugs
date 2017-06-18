@@ -21,7 +21,7 @@ rug edit AddFunction name="drawLabel" type="{ text: String } -> Html Never" para
 rug edit ChangeMain newBody="Html.main_ [] [ Html.canvas [ Html.Attributes.style [ ( \"backgroundImage\", \"url(elmbp.png)\" ) ] ] [ drawLabel { text = \"yes\" }] ]" -lRC $project_dir -X
 rug edit UpgradeToBeginnerProgram -lRC $project_dir
 #rug -lRC $project_dir edit AddButton button_text="Hello There" button_message=HelloThere
-#rug -lRC $project_dir edit AddTextInput input_name=beginnerInput
+rug -lRC $project_dir edit AddTextInput input_name=beginnerInput
 #rug -lRC $project_dir edit UpgradeToProgram
 #rug -lRC $project_dir edit AddButton button_text="Hello Again" button_message=HelloAgain
 #rug -lRC $project_dir edit AddTextInput input_name=advancedInput
