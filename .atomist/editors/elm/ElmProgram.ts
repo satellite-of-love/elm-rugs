@@ -139,19 +139,22 @@ export class ElmProgram {
             "//functionDeclaration[@functionName='update']/body//caseExpression[/pivot[@value='msg']]/clause");
         const messageReactions = reactions.map((clause: any) => {
 
-                console.log(TreePrinter.drawTree(clause));
-                if (clause.deconstructorPattern) {
+               // console.log(TreePrinter.drawTree(clause));
+                if (clause.pattern.deconstructor &&
+                    clause.pattern.deconstructor.constructorName) {
                     return {
-                        name: clause.deconstructorPattern.constructorName,
-                        deconstructor: clause.deconstructorPattern,
+                        name: clause.pattern.deconstructor.constructorName,
+                        deconstructor: clause.pattern,
+                        body: clause.result
+                    }
+                } else if (clause.pattern.constructorName) {
+                    return {
+                        name: clause.pattern.constructorName,
+                        deconstructor: clause.pattern,
                         body: clause.result
                     }
                 } else {
-                    return {
-                        name: clause.constructorName,
-                        deconstructor: clause.constructorName,
-                        body: clause.result
-                    }
+                    throw new Error("Unable to find name for " + clause.value())
                 }
             }
         );

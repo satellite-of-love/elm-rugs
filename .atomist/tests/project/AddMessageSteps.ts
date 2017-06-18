@@ -98,7 +98,7 @@ Then("we can detect a message", (p: Project, world) => {
         return bananaMsg.constructor.value() === "Banana String" &&
             bananaMsg.name.value() === "Banana" &&
             bananaMsg.reactions.length === 1 &&
-            bananaMsg.reactions[0].deconstructor.value() === "Banana String" &&
+            bananaMsg.reactions[0].deconstructor.value() === "Banana color" &&
             bananaMsg.reactions[0].body.value() === "model";
     }
 
@@ -106,7 +106,9 @@ Then("we can detect a message", (p: Project, world) => {
         banana(elmProgram.messages[1]);
 
     if (!result) {
+        console.log("HERE IS THE ONE JESS where is the Banana");
         printFields(elmProgram);
+        console.log("---- END ----")
     }
     return result;
 });
@@ -114,8 +116,8 @@ Then("we can detect a message", (p: Project, world) => {
 function printFields(elmProgram: ElmProgram) {
     console.log(`There are ${elmProgram.messages.length} fields`);
     elmProgram.messages.forEach((f) => {
-        const reactions = f.reactions.map(r => `${r.deconstructor} leads to: ${r.body}`);
-        console.log(`${f.name} from ${f.constructor}, ${reactions.join("\n and ")}`);
+        const reactions = f.reactions.map(r => `${r.deconstructor.value()} leads to: ${r.body.value()}`);
+        console.log(`${f.name.value()} from ${f.constructor.value()}, ${reactions.join("\n and ")}`);
     });
 }
 
