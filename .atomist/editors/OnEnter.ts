@@ -5,16 +5,16 @@ import { Pattern } from "@atomist/rug/operations/RugOperation";
 import {ElmProgram} from "./elm/ElmProgram";
 
 
-const ON_ENTER = `onEnter : Msg -> Attribute Msg
+const ON_ENTER = `onEnter : Msg -> Html.Attributes Msg
 onEnter msg =
     let
         isEnter code =
             if code == 13 then
-                Json.succeed msg
+                Json.Decode.succeed msg
             else
-                Json.fail "not ENTER"
+                Json.Decode.fail "not ENTER"
     in
-        on "keydown" (Json.andThen isEnter keyCode)`;
+        on "keydown" (Json.Decode.andThen isEnter Html.Events.keyCode)`;
 
 
 /**
@@ -42,6 +42,9 @@ export class OnEnter implements EditProject {
         }
 
         const elmProgram = ElmProgram.parse(project, this.targetFile);
+
+        elmProgram.addImport("Json.Decode");
+        elmProgram.addImport("Html.Events");
         elmProgram.addFunction(ON_ENTER, "VIEW");
         if (this.message !== "`none`") {
             elmProgram.addMessage({constructor: this.message});

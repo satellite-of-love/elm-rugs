@@ -149,16 +149,20 @@ When("the AddTextInput is run", (p: Project, world) => {
     w.editWith(editor, { name: "newLabel" });
 });
 
-Then("the input field has been added", (p: Project, world) => {
+Then("the input field has been added", (p: Project) => {
     const after = p.findFile(CERTAIN_INPUT_FILEPATH).content;
     const passing = (after === CERTAIN_FILE_CONTENT_AFTER);
     if (!passing) {
-        console.log(JSON.stringify(CERTAIN_FILE_CONTENT_AFTER));
-        console.log(JSON.stringify(after));
-        console.log(
-            `FAILURE: ${CERTAIN_INPUT_FILEPATH} --->\n${
-                after.replace(/^$/mg, "[blank line]")
-                }\n<---`);
+       showResult(CERTAIN_FILE_CONTENT_AFTER, after, CERTAIN_INPUT_FILEPATH);
     }
     return passing;
 });
+
+export function showResult(expected: string, actual: string, path: string = "") {
+    console.log(JSON.stringify(expected));
+    console.log(JSON.stringify(actual));
+    console.log(
+        `FAILURE: ${path} --->\n${
+            actual.replace(/^$/mg, "[blank line]")
+            }\n<---`);
+}

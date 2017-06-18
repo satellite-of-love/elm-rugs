@@ -2,12 +2,14 @@ import { Project } from "@atomist/rug/model/Project";
 import {
     Given, ProjectScenarioWorld, Then, When,
 } from "@atomist/rug/test/project/Core";
+import {showResult} from "./AddTextInputSteps";
 
 const CERTAIN_INPUT_FILEPATH = "src/Main.elm";
 
 const CERTAIN_FILE_CONTENT_AFTER = `module BeginnerProgram exposing (..)
 
 import Html exposing (Html)
+import Json.Decode
 
 
 -- MODEL
@@ -40,16 +42,16 @@ view model =
     Html.div [] []
 
 
-onEnter : Msg -> Attribute Msg
+onEnter : Msg -> Html.Attribute Msg
 onEnter msg =
     let
         isEnter code =
             if code == 13 then
-                Json.succeed msg
+                Json.Decode.succeed msg
             else
-                Json.fail "not ENTER"
+                Json.Decode.fail "not ENTER"
     in
-        on "keydown" (Json.andThen isEnter keyCode)
+        on "keydown" (Json.Decode.andThen isEnter Html.Events.keyCode)
 
 
 
@@ -90,7 +92,7 @@ Then("we have a beginner program that can get a message on Enter", (p: Project, 
     const after = p.findFile(CERTAIN_INPUT_FILEPATH).content;
     const passing = (after === CERTAIN_FILE_CONTENT_AFTER);
     if (!passing) {
-        console.log(`FAILURE: ${CERTAIN_INPUT_FILEPATH} --->\n${after}\n<---`);
+        showResult(CERTAIN_FILE_CONTENT_AFTER, after, CERTAIN_INPUT_FILEPATH)
     }
     return passing;
 });
