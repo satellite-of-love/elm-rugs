@@ -8,9 +8,11 @@ import {ElmProgram} from "./elm/ElmProgram";
 /**
  * Sample TypeScript editor used by AddAddImport.
  */
-@Editor("AddImport", "add an import")
+@Editor(AddImport.editorName, "add an import")
 @Tags("documentation")
 export class AddImport implements EditProject {
+
+    static editorName = "AddImport";
 
     @Parameter({
         displayName: "Module to import",
@@ -26,8 +28,13 @@ export class AddImport implements EditProject {
 
     public edit(project: Project) {
 
+
         const elmProgram = ElmProgram.parse(project, this.targetFile);
-        elmProgram.addImport(this.import);
+        if (elmProgram.addImport(this.import)) {
+            console.log(`Added import of ${this.import} to ${this.targetFile}`);
+        } else {
+            console.log(`${this.import} is already imported in ${this.targetFile}`)
+        }
 
     }
 

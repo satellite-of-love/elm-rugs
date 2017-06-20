@@ -363,6 +363,9 @@ export class ElmProgram {
 
     /*
      * Imports
+     *
+     * Returns true if the import was added,
+     * false if it was already there
      */
     public addImport(name: string) {
         const newImport = `import ${name}`;
@@ -386,13 +389,19 @@ export class ElmProgram {
         }
 
         const imports = this.descend("//import");
+
+        if (imports.length === 0) {
+            const moduleDeclaration = this.descend("/moduleDeclaration")[0];
+            moduleDeclaration.update(moduleDeclaration.value() + "\n\n" + newImport)
+        }
+
         const before = imports.filter((i: any) => importCompare(i.importName.value(), name) < 0);
         const same = imports.filter((i: any) => i.importName.value() === name);
         const after = imports.filter((i: any) => 0 < importCompare(i.importName.value(), name));
 
         if (same.length > 0) {
             // import already present
-            return;
+            return false;
         }
 
         if (before.length > 0) {
@@ -407,6 +416,7 @@ export class ElmProgram {
         // TODO: what if there are 0 imports
 
         this.reparse();
+        return true;
     }
 
     private descend(pe: string): TextTreeNode[] {
