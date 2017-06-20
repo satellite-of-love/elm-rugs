@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/jessitron/elm-rugs#readme",
   "dependencies": {
-    "@atomist/rugs": "^1.0.0-m.4",
+    "@atomist/rugs": "^1.0.0-m.5",
     "deprecated-decorator": "0.1.6",
     "js-yaml": "^3.8.4",
     "lodash": "^4.17.4"
@@ -43,7 +43,7 @@
     "test": "yarn run mocha && rug test"
   },
   "atomist": {
-    "requires": "[1.0.0-m.3,2.0.0)",
+    "requires": "[1.0.0-m.4,2.0.0)",
     "extensions": {
       "jessitron:kats-parser": "[0.2.1, 0.3.0)"
     }

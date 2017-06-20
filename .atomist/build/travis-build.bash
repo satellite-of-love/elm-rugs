@@ -4,7 +4,7 @@
 set -o pipefail
 
 declare Pkg=travis-build
-declare Version=0.7.0
+declare Version=0.8.0
 
 function msg() {
     echo "$Pkg: $*"
@@ -59,27 +59,23 @@ function main () {
     rug="$rug --timer --quiet --update --resolver-report --error --settings=$PWD/.atomist/build/cli.yml"
     export TEAM_ID=T1L0VDKJP
 
-    if [[ -f .atomist/package.json ]]; then
-        msg "running yarn"
-        # this should use --frozen-lockfile but
-        # https://github.com/yarnpkg/yarn/issues/3313
-        if ! ( cd .atomist && yarn --pure-lockfile ); then
-            err "yarn failed"
-            return 1
-        fi
+    msg "running npm install"
+    if ! ( cd .atomist && npm install ); then
+        err "npm install failed"
+        return 1
+    fi
 
-        msg "running lint"
-        if ! ( cd .atomist && yarn run lint ); then
-            err "tslint failed"
-            return 1
-        fi
+    msg "running lint"
+    if ! ( cd .atomist && npm run lint ); then
+        err "tslint failed"
+        return 1
+    fi
 
-        if [[ -d .atomist/mocha ]]; then
-            msg "running mocha tests"
-            if ! ( cd .atomist && yarn run mocha ); then
-                err "mocha tests failed"
-                return 1
-            fi
+    if [[ -d .atomist/mocha ]]; then
+        msg "running mocha tests"
+        if ! ( cd .atomist && npm run mocha ); then
+            err "mocha tests failed"
+            return 1
         fi
     fi
 
@@ -98,15 +94,10 @@ function main () {
     [[ $TRAVIS_PULL_REQUEST == false ]] || return 0
 
     local archive_version
-    local manifest=.atomist/manifest.yml
-    if [[ -f $manifest ]]; then
-        archive_version=$(awk -F: '$1 == "version" { print $2 }' "$manifest" | sed 's/[^.0-9]//g')
-    else
-        err "no manifest.yml in archive"
-        return 1
-    fi
+    local pkg_json=.atomist/package.json
+    archive_version=$(jq -er .version "$pkg_json")
     if [[ $? -ne 0 || ! $archive_version ]]; then
-        err "failed to extract archive version: $archive_version"
+        err "failed to extract archive version from $pkg_json: $archive_version"
         return 1
     fi
     local project_version
