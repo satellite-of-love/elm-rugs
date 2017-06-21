@@ -413,7 +413,6 @@ export class ElmProgram {
             const first = after[0];
             first.update(newImport + "\n" + first.value());
         }
-        // TODO: what if there are 0 imports
 
         this.reparse();
         return true;

@@ -12,6 +12,8 @@ const filesInStaticPageProject = [
     ".gitignore",
     ".gitattributes",
     "README.md",
+    "CODE_OF_CONDUCT.md",
+    "CONTRIBUTING.md"
 ];
 
 // tslint:disable-next-line:no-empty
@@ -23,6 +25,8 @@ When("running the StaticPage generator", (p: Project, world: ProjectScenarioWorl
 });
 
 Then("minimal files are included", (p: Project) => {
+    // If this fails, either add files to the expected list,
+    // or add files to the list of deleted ones in NewStaticPage.ts
     const filenames = p.files.map((f) => f.path);
     const result = (
         filesInStaticPageProject.every((f) => p.fileExists(f)) &&

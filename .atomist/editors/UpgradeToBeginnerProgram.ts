@@ -52,7 +52,7 @@ export class UpgradeToBeginnerProgram implements EditProject {
         // add the rest of Main.elm to the view section
         pxe.with<TextTreeNode>(project,
             "/deleteme/BeginnerProgram.elm/Elm()/moduleBody/section[@sectionHeader='VIEW']",
-            (section) => section.update(section.value() + everythingButMain),
+            (section) => section.update(section.value() + "\n\n" + everythingButMain),
         );
 
         pxe.with<TextTreeNode>(project,

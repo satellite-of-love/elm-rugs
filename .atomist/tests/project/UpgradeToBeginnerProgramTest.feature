@@ -1,7 +1,4 @@
-Feature: Make sure the sample TypeScript Editor has some tests
-  This is the sample Gherkin feature file for the BDD tests of
-  the Turn a static page into an interactive page.
-  Feel free to modify and extend to suit the needs of your editor.
+Feature: Upgrade to Beginner Program
 
 
   Scenario: UpgradeToBeginnerProgram should edit a project correctly
@@ -11,3 +8,9 @@ Feature: Make sure the sample TypeScript Editor has some tests
     When the UpgradeToBeginnerProgram is run
     Then the type of main is Program Never Model Msg
     Then the type of that function is Html Msg
+
+  Scenario: UpgradeToBeginnerProgram should include all functions
+    Given a project with a static program that defines something before main
+    When the UpgradeToBeginnerProgram is run
+    Then the type of main is Program Never Model Msg
+    Then the function defined before main is included in the output
