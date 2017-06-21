@@ -26,9 +26,9 @@ Feature: Manipulate Elm model
     Given an Elm program with 2 fields in the model
     Then we can detect 2 model fields
 
-#  Scenario: we can add when there is an inner record
-#    Given an Elm program with 2 fields in the model
-#    When the AddToModel is run
-#    Then the third field is there
-#    Then it looks like this three fields
+  Scenario: we can add when there is an inner record
+    Given an Elm program with 2 fields in the model
+    When the AddToModel is run
+    Then the third field is there
+    Then it looks like this three fields
   

@@ -44,8 +44,8 @@ const TWO_FIELDS = `module Main exposing (main)
 
 
 type alias Model =
-    { count: { total: Int } 
-    , messages: List String }
+    { count: { total : Int }
+    , messages : List String }
 
 
 init : Model
@@ -61,8 +61,8 @@ const THREE_FIELDS = `module Main exposing (main)
 
 
 type alias Model =
-    { count: { total: Int }
-    , messages: List String, banana: String}
+    { count: { total : Int }
+    , messages : List String, banana : String }
 
 
 init : Model
@@ -96,7 +96,6 @@ Given("an Elm program with a field in the model", (p: Project, world) => {
 });
 
 Then("we can detect a model field", (p: Project, world) => {
-    const w = world as ProjectScenarioWorld;
 
     const elmProgram = ElmProgram.parse(p, CERTAIN_INPUT_FILEPATH);
     const result = elmProgram.modelFields.length === 1 &&
@@ -111,8 +110,10 @@ Then("we can detect a model field", (p: Project, world) => {
 
 function printFields(elmProgram) {
     console.log(`There are ${elmProgram.modelFields.length} fields`);
-    elmProgram.modelFields.forEach((f) =>
-        console.log(`${f.name}: ${f.type.value()} = ${f.initialization.value()}`));
+    elmProgram.modelFields.forEach((f) => {
+        console.log(JSON.stringify(f));
+        console.log(`${f.name}: ${f.type.value()} = ${f.initialization.value()}`)
+    });
 }
 
 Given("an Elm program with 2 fields in the model", (p: Project, world) => {
@@ -144,15 +145,21 @@ Then("the field is in the model's type", (p: Project, world) => {
 });
 
 Then("the field is in the initial model", (p: Project, world) => {
-    const elmProgram = ElmProgram.parse(p, CERTAIN_INPUT_FILEPATH);
-    const passing = elmProgram.modelFields.filter((mf) => mf.name === "banana" &&
-        mf.initialization.value() === `"yellow"`).length === 1;
+    try {
+        const elmProgram = ElmProgram.parse(p, CERTAIN_INPUT_FILEPATH);
 
-    if (!passing) {
-        const after = p.findFile(CERTAIN_INPUT_FILEPATH).content;
-        console.log(`FAILURE: ${CERTAIN_INPUT_FILEPATH} --->\n${after}\n<---`);
+        const passing = elmProgram.modelFields.filter((mf) => mf.name === "banana" &&
+            mf.initialization.value() === `"yellow"`).length === 1;
+
+        if (!passing) {
+            const after = p.findFile(CERTAIN_INPUT_FILEPATH).content;
+            console.log(`FAILURE: ${CERTAIN_INPUT_FILEPATH} --->\n${after}\n<---`);
+        }
+        return passing;
+    } catch (e) {
+        console.log(e.getMessage());
+        throw e;
     }
-    return passing;
 });
 
 Then("the third field is there", (p: Project) => {
@@ -170,9 +177,9 @@ Then("the third field is there", (p: Project) => {
 
 Then("it looks like this three fields", (p: Project) => {
         const after = p.findFile(CERTAIN_INPUT_FILEPATH).content;
-        const passing = (after === CERTAIN_FILE_CONTENT_AFTER);
+        const passing = (after === THREE_FIELDS);
         if (!passing) {
-            showResult(CERTAIN_FILE_CONTENT_AFTER, after, CERTAIN_INPUT_FILEPATH)
+            showResult(THREE_FIELDS, after, CERTAIN_INPUT_FILEPATH)
         }
         return passing;
     }

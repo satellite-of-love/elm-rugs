@@ -2,7 +2,6 @@ import {Project, File} from "@atomist/rug/model/Core";
 import {PathExpressionEngine, TextTreeNode} from "@atomist/rug/tree/PathExpression";
 import * as TreePrinter from "../../editors/TreePrinter";
 import * as _ from "lodash";
-import {draw, drawTree} from "../TreePrinter";
 
 interface Field {
     name: string;
@@ -152,7 +151,7 @@ export class ElmProgram {
      */
     get modelFields(): Field[] {
 
-        const nodeToField = (n, v) => {
+        const nodeToField = (n: { fieldName: TextTreeNode, fieldType: TextTreeNode }, v: { fieldValue: TextTreeNode }): Field => {
             return {
                 name: n.fieldName.value(),
                 type: n.fieldType,
@@ -174,46 +173,53 @@ export class ElmProgram {
 
         if (values.length !== types.length) {
             console.log(TreePrinter.drawTree(this.moduleNode));
+            console.log(`There are ${values.length} Values: ` + JSON.stringify(values));
+            console.log(`There are ${types.length} Types: ${JSON.stringify(types)}`);
             throw new Error("Could not detect initial values and types of model fields");
         }
 
         let i = 0; // the two-arg map is broken
         const fields =
-            types.map((e) => nodeToField(e, values[i++]));
+            types.map((e) => nodeToField(e as any, values[i++] as any));
         return fields;
     }
 
     public addModelField(name: string, type: string, value: string): void {
-        {
-            const newFieldType = `${name} : ${type}`;
-            const fields = this.descend("//typeAlias[@typeName='Model']/definition/recordType/recordTypeField");
-            if (fields.length === 0) {
+
+        const before = this.modelFields
+        if (before.length === 0) {
+            {
+                const newFieldType = `${name} : ${type}`;
                 const emptyModel = this.descend("//typeAlias[@typeName='Model']/definition/recordType");
                 if (emptyModel.length < 1) {
                     console.log(TreePrinter.drawTree(this.moduleNode));
                     throw new Error("Can't find the model at all");
                 }
                 emptyModel[0].update("{ " + newFieldType + " }");
-            } else {
-                const last = fields[fields.length - 1];
-                last.update(last.value() + ", " + newFieldType);
             }
-        }
-        this.reparse();
-        {
-            const newFieldValue = `${name} = ${value}`;
-            const values = this.descend(
-                "//functionDeclaration[@functionName='init']//recordLiteralField");
-            if (values.length === 0) {
+            this.reparse();
+            {
+                const newFieldValue = `${name} = ${value}`;
                 const empty = this.descend(
                     "//functionDeclaration[@functionName='init']//recordLiteral");
                 empty[0].update("{ " + newFieldValue + " }");
-            } else {
-                const last = values[values.length - 1];
+            }
+            this.reparse();
+        }
+        else {
+            {
+                const fields = this.modelFields;
+
+                const newFieldType = `${name} : ${type}`;
+                const lastType = fields[fields.length - 1].type;
+                lastType.update(lastType.value() + ", " + newFieldType);
+
+                const newFieldValue = `${name} = ${value}`;
+                const last = fields[fields.length - 1].initialization;
                 last.update(last.value() + ", " + newFieldValue);
             }
+            this.reparse();
         }
-        this.reparse();
     }
 
 
