@@ -6,8 +6,8 @@ import {draw, drawTree} from "../TreePrinter";
 
 interface Field {
     name: string;
-    type: string;
-    initialization: string;
+    type: TextTreeNode;
+    initialization: TextTreeNode;
 }
 
 interface ReactionToMessage {
@@ -155,14 +155,22 @@ export class ElmProgram {
         const nodeToField = (n, v) => {
             return {
                 name: n.fieldName.value(),
-                type: n.fieldType.value(),
-                initialization: v.fieldValue.value(),
+                type: n.fieldType,
+                initialization: v.fieldValue,
             };
         };
         const types = this.descend(
             "//typeAlias[@typeName='Model']/definition/recordType/recordTypeField");
-        const values = this.descend(
-            "//functionDeclaration[@functionName='init']//recordLiteralField");
+        const recordLiterals = this.descend(
+            "//functionDeclaration[@functionName='init']//recordLiteral");
+        if (recordLiterals.length === 0) {
+            throw new Error("No record literal found in init")
+        }
+        // find the biggest one. There could be some inside. Will the biggest one always be first? probably
+        const initialModel: any = recordLiterals[0];
+
+
+        const values = toArray(initialModel.recordLiteralField);
 
         if (values.length !== types.length) {
             console.log(TreePrinter.drawTree(this.moduleNode));
@@ -319,7 +327,7 @@ export class ElmProgram {
             throw new Error("Didn't find the subscriptions function");
         }
 
-        if(subscriptionsFunction.body.value() === "Sub.none") {
+        if (subscriptionsFunction.body.value() === "Sub.none") {
             subscriptionsFunction.body.update(subscription)
         } else {
             // TODO
@@ -454,4 +462,11 @@ function trailingNewline(f: File) {
     if (!f.content.match(/\n$/)) {
         f.setContent(content + "\n");
     }
+}
+
+function toArray(possiblyTreeNodes): TextTreeNode[] {
+    return possiblyTreeNodes ?
+        (Array.isArray(possiblyTreeNodes) ? possiblyTreeNodes
+            : [possiblyTreeNodes])
+        : [];
 }
