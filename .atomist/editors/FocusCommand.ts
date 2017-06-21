@@ -1,7 +1,24 @@
-import { File, Project } from "@atomist/rug/model/Core";
-import { Editor, Parameter, Tags } from "@atomist/rug/operations/Decorators";
-import { EditProject } from "@atomist/rug/operations/ProjectEditor";
-import { Pattern } from "@atomist/rug/operations/RugOperation";
+import {File, Project} from "@atomist/rug/model/Core";
+import {Editor, Parameter, Tags} from "@atomist/rug/operations/Decorators";
+import {EditProject} from "@atomist/rug/operations/ProjectEditor";
+import {Pattern} from "@atomist/rug/operations/RugOperation";
+import {ElmProgram} from "./elm/ElmProgram";
+import {addDependency} from "./SubscribeToClicks";
+
+const FOCUS_FUNCTION = `requestFocus : String -> Cmd Msg
+requestFocus field_id =
+    let
+        handle result =
+            case result of
+                Ok () ->
+                    NoOp
+
+                Err (Dom.NotFound id) ->
+                    FocusFieldNotFound id
+    in
+        Task.attempt handle (Dom.focus field_id)`;
+
+const FOCUS_DEPENDENCY = `"elm-lang/dom": "1.0.1 <= v < 2.0.0"`;
 
 /**
  * Sample TypeScript editor used by AddFocusCommand.
@@ -10,20 +27,19 @@ import { Pattern } from "@atomist/rug/operations/RugOperation";
 @Tags("documentation")
 export class FocusCommand implements EditProject {
 
-    @Parameter({
-        displayName: "Some Input",
-        description: "example of how to specify a parameter using decorators",
-        pattern: Pattern.any,
-        validInput: "a description of the valid input",
-        minLength: 1,
-        maxLength: 100,
-    })
-    public inputParameter: string;
+    public targetFile: string = "src/Main.elm";
 
     public edit(project: Project) {
-        const certainFile = project.findFile("hello.txt");
-        const newContent = certainFile.content.replace(/the world/, this.inputParameter);
-        certainFile.setContent(newContent);
+        const elmProgram = ElmProgram.parse(project, this.targetFile);
+        addDependency(project, FOCUS_DEPENDENCY);
+        elmProgram.addImport("Dom");
+        elmProgram.addImport("Task");
+        elmProgram.addMessage({
+            constructor: "FocusFieldNotFound String",
+            deconstructor: "FocusFieldNotFound id"
+        });
+        elmProgram.addFunction(FOCUS_FUNCTION, "UPDATE");
+
     }
 }
 

@@ -26,6 +26,7 @@ rug edit Upgrade -lRC $project_dir
 #rug edit AddButton button_text="Hello Again" button_message=HelloAgain -lRC $project_dir
 #rug edit AddTextInput input_name=advancedInput -lRC $project_dir
 rug edit SubscribeToClicks -lRC $project_dir
+rug edit FocusCommand -lRC $project_dir
 
 cd $project_dir
 ./build --yes

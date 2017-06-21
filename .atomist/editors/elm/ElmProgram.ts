@@ -297,12 +297,8 @@ export class ElmProgram {
         deconstructor?: string,
         updatedModel?: string
     }) {
-        const defaultReaction =
-            this.programLevel === "beginner" ?
-                "model" :
-                "( model, Cmd.none )";
         const deconstructor = params.deconstructor || params.constructor;
-        const updatedModel = params.updatedModel || defaultReaction;
+        const updatedModel = params.updatedModel || "model";
         const reaction = this.programLevel === "beginner" ?
             updatedModel :
             `( ${updatedModel}, Cmd.none )`;
