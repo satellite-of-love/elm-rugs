@@ -264,12 +264,10 @@ export class ElmProgram {
      *
      */
     get messages(): Message[] {
-        console.log("looking for reactions");
 
         const messageReactions = this.updateClauses;
         const reactionsMap = _.groupBy(messageReactions, (r) => r.name.value());
 
-        console.log("got reactions");
         /*
          | ├── [210-218] sectionHeader is MESSAGES
          | └─┬ [221-241] unionTypeDeclaration
