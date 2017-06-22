@@ -1,14 +1,15 @@
 # Elm Generators and Editors for Rug
 
-OUT OF DATE
+This README is out of date
 
-Unfortunately these don't work with the current version of Rug. I have to rewrite the elm-parsing infrastructure first.
-This will probably happen in June 2017.
+although the scripts actually work now (June 2017), they use a parser (jessitron/kats-parser) that currently has to be locally installed. 
+
+I still have to write up the instructions. It'll be July before I can do that.
 
 ## Sorry
 
 
-This repository contains scripts for starting and upgrading Elm programs. The scripts run in [Rug](http://docs.atomist.com/rug/why-and-what-is-rug/), a DSL and runtime for code that modifies code.
+This repository contains scripts for starting and upgrading Elm programs. The scripts run in [Rug](http://docs.atomist.com/rug/why-and-what-is-rug/), a runtime for code that modifies code.
 
 Here's a writeup of how to get started: [Using Rug with Elm](http://blog.jessitron.com/2016/12/using-rug-with-elm.html)
 
@@ -24,7 +25,7 @@ Generators create a new project from scratch.
 
 Sample usage, to create a project called `banana` as a subdirectory of the current directory:
 
-`rug generate jessitron:elm-rugs:StaticPage banana`
+`rug generate satellite-of-love:elm-rugs:StaticPage banana`
 
 ### StaticPage
 A new Elm program with a main function that returns an empty div. Start here to create your basic UI, and then add interactivity with UpgradeToBeginnerProgram.
