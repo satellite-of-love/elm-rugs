@@ -1,7 +1,7 @@
-import {Project} from "@atomist/rug/model/Project";
-import {Editor, Tags} from "@atomist/rug/operations/Decorators";
-import {EditProject} from "@atomist/rug/operations/ProjectEditor";
-import {TextTreeNode} from "@atomist/rug/tree/PathExpression";
+import { Project } from "@atomist/rug/model/Project";
+import { Editor, Tags } from "@atomist/rug/operations/Decorators";
+import { EditProject } from "@atomist/rug/operations/ProjectEditor";
+import { TextTreeNode } from "@atomist/rug/tree/PathExpression";
 
 /**
  * Sample TypeScript editor used by AddUpgradeToBeginnerProgram.
@@ -12,6 +12,8 @@ export class UpgradeToBeginnerProgram implements EditProject {
 
     public edit(project: Project) {
         const pxe = project.context.pathExpressionEngine;
+
+        verifyElmProject(project);
 
         const basicMainTreeNode = pxe.scalar<Project, TextTreeNode>(project, "/src/Main.elm/Elm()");
         const typeOfMain = pxe.scalar<TextTreeNode, TextTreeNode>(basicMainTreeNode,
@@ -72,6 +74,15 @@ export class UpgradeToBeginnerProgram implements EditProject {
 
         project.deleteFile("deleteme/BeginnerProgram.elm");
 
+    }
+}
+
+/**
+ * Throw a useful exception if we're in the wrong place
+ */
+function verifyElmProject(project: Project): void {
+    if (!project.fileExists("elm-package.json")) {
+        throw new Error("I don't see elm-package.json. Are you at the root of an Elm project?");
     }
 }
 
