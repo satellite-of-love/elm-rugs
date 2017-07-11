@@ -2,6 +2,7 @@ import { Project } from "@atomist/rug/model/Project";
 import { Editor, Tags } from "@atomist/rug/operations/Decorators";
 import { EditProject } from "@atomist/rug/operations/ProjectEditor";
 import { TextTreeNode } from "@atomist/rug/tree/PathExpression";
+import { ElmProgram } from "./elm/ElmProgram";
 
 /**
  * Sample TypeScript editor used by AddUpgradeToBeginnerProgram.
@@ -32,11 +33,13 @@ export class UpgradeToBeginnerProgram implements EditProject {
             }
         }
 
+        const program = ElmProgram.parse(project);
+
         // the stuff we need from the existing program
         const existingModuleBody = descend(basicMainTreeNode, "/moduleBody");
-        const existingMain = descend(existingModuleBody, "//functionDeclaration[@functionName='main']");
-        const fullTypeOfMain: string = (existingMain as any).typeDeclaration.declaredType.value();
-        const everythingButMain: string = existingModuleBody.value().replace(existingMain.value(), "");
+        const existingMain = program.getFunction("main");
+        const fullTypeOfMain: string = existingMain.declaredType.value();
+        const everythingButMain: string = existingModuleBody.value().replace(existingMain.whole.value(), "");
         // TODO: could remove some whitespace too
 
         // bring the code we need in to the project so we can parse it
@@ -44,18 +47,17 @@ export class UpgradeToBeginnerProgram implements EditProject {
 
         // TODO: imports.
 
-        const mainBodyText = (existingMain as any).body.value();
+        const mainBodyText = existingMain.body.value();
         // update the view function to contain the body of Main.main
 
-        pxe.with<TextTreeNode>(project,
-            "/deleteme/BeginnerProgram.elm/Elm()//functionDeclaration[@functionName='view']/body",
-            (body) => body.update(mainBodyText));
+        const beginnerProgram = ElmProgram.parse(project, "deleteme/BeginnerProgram.elm");
+        beginnerProgram.getFunction("view").body.update(mainBodyText);
+        beginnerProgram.reparse();
 
         // add the rest of Main.elm to the view section
-        pxe.with<TextTreeNode>(project,
-            "/deleteme/BeginnerProgram.elm/Elm()/moduleBody/section[@sectionHeader='VIEW']",
-            (section) => section.update(section.value() + "\n\n" + everythingButMain),
-        );
+        const newViewSection = beginnerProgram.getSection("VIEW");
+        newViewSection.body.update(
+            newViewSection.body.value() + "\n\n" + everythingButMain);
 
         pxe.with<TextTreeNode>(project,
             "/deleteme/BeginnerProgram.elm/Elm()/moduleBody",
@@ -66,7 +68,7 @@ export class UpgradeToBeginnerProgram implements EditProject {
                     beginnerProgramBody.value().
                         replace(new RegExp(fullTypeOfMain, "g"), "Html Msg");
                 existingModuleBody.update(adjustedBeginnerProgramBody);
-            }
+            },
         );
 
         // console.log("Here is the file yo");

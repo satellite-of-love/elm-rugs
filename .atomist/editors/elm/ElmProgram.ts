@@ -1,5 +1,5 @@
-import {Project, File} from "@atomist/rug/model/Core";
-import {PathExpressionEngine, TextTreeNode} from "@atomist/rug/tree/PathExpression";
+import { Project, File } from "@atomist/rug/model/Core";
+import { PathExpressionEngine, TextTreeNode } from "@atomist/rug/tree/PathExpression";
 import * as TreePrinter from "../../editors/TreePrinter";
 import * as _ from "lodash";
 
@@ -25,6 +25,7 @@ export interface Function {
     // parameters?
     declaredType: TextTreeNode,
     body: TextTreeNode,
+    whole: TextTreeNode
 }
 
 export interface Section {
@@ -44,7 +45,7 @@ export class ElmProgram {
     }
 
     private pxe: PathExpressionEngine;
-    private reparse: () => void;
+    public reparse: () => void;
     private moduleNode: TextTreeNode;
 
     private constructor(project: Project, private filepath: string) {
@@ -86,7 +87,7 @@ export class ElmProgram {
             return;
         }
         if (this.programLevel !== "beginner") {
-            throw new Error("Can only upgrade a beginner program to advanced")
+            throw new Error("Can only upgrade a beginner program to advanced");
         }
 
         const main = this.descend(`//functionDeclaration[@functionName='main']`)[0];
@@ -103,7 +104,7 @@ export class ElmProgram {
         this.reparse();
 
         const reactions = this.updateClauses;
-        reactions.forEach(r =>
+        reactions.forEach((r) =>
             r.body.update(`( ${r.body.value()}, Cmd.none )`)
         );
         this.reparse();
@@ -119,7 +120,7 @@ export class ElmProgram {
             return null;
         }
         if (functionNodes.length > 1) {
-            throw new Error(`WTF there are ${functionNodes.length} functions named ${name}`)
+            throw new Error(`WTF there are ${functionNodes.length} functions named ${name}`);
         }
 
         const functionNode: any = functionNodes[0];
@@ -132,8 +133,9 @@ export class ElmProgram {
         return {
             name,
             declaredType,
-            body: functionNode.body
-        }
+            body: functionNode.body,
+            whole: functionNode,
+        };
     }
 
     /*
@@ -163,11 +165,10 @@ export class ElmProgram {
         const recordLiterals = this.descend(
             "//functionDeclaration[@functionName='init']//recordLiteral");
         if (recordLiterals.length === 0) {
-            throw new Error("No record literal found in init")
+            throw new Error("No record literal found in init");
         }
         // find the biggest one. There could be some inside. Will the biggest one always be first? probably
         const initialModel: any = recordLiterals[0];
-
 
         const values = toArray(initialModel.recordLiteralField);
 
@@ -186,7 +187,7 @@ export class ElmProgram {
 
     public addModelField(name: string, type: string, value: string): void {
 
-        const before = this.modelFields
+        const before = this.modelFields;
         if (before.length === 0) {
             {
                 const newFieldType = `${name} : ${type}`;
@@ -222,40 +223,39 @@ export class ElmProgram {
         }
     }
 
-
     get updateClauses(): ReactionToMessage[] {
         const reactions = this.descend(
             "//functionDeclaration[@functionName='update']/body//caseExpression[/pivot[@value='msg']]/clause");
         const messageReactions = reactions.map((clause: any) => {
 
-                //console.log("A clause:" + drawTree(clause));
+            // console.log("A clause:" + drawTree(clause));
 
-                // not sure why we get two constructorNames for `Click Nothing`
-                if (clause.pattern.deconstructor &&
-                    clause.pattern.deconstructor.constructorName &&
-                    Array.isArray(clause.pattern.deconstructor.constructorName)) {
-                    return {
-                        name: clause.pattern.deconstructor.constructorName[0],
-                        deconstructor: clause.pattern,
-                        body: clause.result
-                    }
-                } else if (clause.pattern.deconstructor &&
-                    clause.pattern.deconstructor.constructorName) {
-                    return {
-                        name: clause.pattern.deconstructor.constructorName,
-                        deconstructor: clause.pattern,
-                        body: clause.result
-                    }
-                } else if (clause.pattern.constructorName) {
-                    return {
-                        name: clause.pattern.constructorName,
-                        deconstructor: clause.pattern,
-                        body: clause.result
-                    }
-                } else {
-                    throw new Error("Unable to find name for " + clause.value())
-                }
+            // not sure why we get two constructorNames for `Click Nothing`
+            if (clause.pattern.deconstructor &&
+                clause.pattern.deconstructor.constructorName &&
+                Array.isArray(clause.pattern.deconstructor.constructorName)) {
+                return {
+                    name: clause.pattern.deconstructor.constructorName[0],
+                    deconstructor: clause.pattern,
+                    body: clause.result
+                };
+            } else if (clause.pattern.deconstructor &&
+                clause.pattern.deconstructor.constructorName) {
+                return {
+                    name: clause.pattern.deconstructor.constructorName,
+                    deconstructor: clause.pattern,
+                    body: clause.result
+                };
+            } else if (clause.pattern.constructorName) {
+                return {
+                    name: clause.pattern.constructorName,
+                    deconstructor: clause.pattern,
+                    body: clause.result
+                };
+            } else {
+                throw new Error("Unable to find name for " + clause.value());
             }
+        }
         );
         return messageReactions;
     }
@@ -328,10 +328,10 @@ export class ElmProgram {
         }
 
         if (subscriptionsFunction.body.value() === "Sub.none") {
-            subscriptionsFunction.body.update(subscription)
+            subscriptionsFunction.body.update(subscription);
         } else {
             // TODO
-            throw new Error("please implement")
+            throw new Error("please implement");
         }
 
         this.reparse();
@@ -341,21 +341,21 @@ export class ElmProgram {
      * sections
      */
     private get sections(): Section[] {
-        const sectionNodes = this.descend("//section")
+        const sectionNodes = this.descend("//section");
 
         return sectionNodes.map((s: any) => {
-                return {
-                    name: s.sectionHeader,
-                    body: s.sectionContent
-                }
-            }
-        )
+            return {
+                name: s.sectionHeader,
+                body: s.sectionContent
+            };
+        },
+        );
     }
 
-    private getSection(sectionName: string): Section {
-        const sections = this.sections.filter(s => s.name.value() === sectionName);
+    public getSection(sectionName: string): Section {
+        const sections = this.sections.filter((s) => s.name.value() === sectionName);
         if (sections.length === 0) {
-            throw new Error(`Section ${sectionName} not found in ${this.filepath}`)
+            throw new Error(`Section ${sectionName} not found in ${this.filepath}`);
         }
         return sections[0];
     }
@@ -400,7 +400,7 @@ export class ElmProgram {
 
         if (imports.length === 0) {
             const moduleDeclaration = this.descend("/moduleDeclaration")[0];
-            moduleDeclaration.update(moduleDeclaration.value() + "\n\n" + newImport)
+            moduleDeclaration.update(moduleDeclaration.value() + "\n\n" + newImport);
         }
 
         const before = imports.filter((i: any) => importCompare(i.importName.value(), name) < 0);
@@ -452,7 +452,7 @@ subscriptions model =
 
 function last<T>(arr: T[], name: string = "an"): T {
     if (arr.length === 0) {
-        throw new Error(`${name} array was empty`)
+        throw new Error(`${name} array was empty`);
     }
     return arr[arr.length - 1];
 }
