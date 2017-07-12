@@ -70,7 +70,7 @@ Then("the function defined before main is included in the output", (p: Project) 
 Then("the type alias is in the model section", (p: Project) =>
     {
         const program = ElmProgram.parse(p);
-        const modelSection = program.getSection("Model");
+        const modelSection = program.getSection("MODEL");
 
     }
 )

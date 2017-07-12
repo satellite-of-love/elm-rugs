@@ -37,6 +37,7 @@ export interface Section {
 export interface TypeAlias {
     name: TextTreeNode,
     body: TextTreeNode,
+    whole: TextTreeNode,
 }
 
 export type ProgramLevel = "static" | "beginner" | "advanced"
@@ -352,11 +353,21 @@ export class ElmProgram {
         return sectionNodes.map(this.toSection);
     }
 
+    private toTypeAlias(ttn: TextTreeNode & any): TypeAlias {
+        return {
+            whole: ttn,
+            body: ttn.definition,
+            name: ttn.typeName,
+        }
+    }
+
     private toSection(ttn: TextTreeNode & any): Section {
+        const typeAliases = this.descend("/body/typeAlias", ttn).map(this.toTypeAlias);
+
         return {
             name: ttn.sectionHeader,
             body: ttn.sectionContent,
-            typeAliases: []
+            typeAliases: typeAliases
         };
     }
 
@@ -434,8 +445,8 @@ export class ElmProgram {
         return true;
     }
 
-    private descend(pe: string): TextTreeNode[] {
-        return this.pxe.evaluate<TextTreeNode, TextTreeNode>(this.moduleNode, pe).matches;
+    private descend(pe: string, node: TextTreeNode = this.moduleNode): TextTreeNode[] {
+        return this.pxe.evaluate<TextTreeNode, TextTreeNode>(node, pe).matches;
     }
 
 }
