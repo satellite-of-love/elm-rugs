@@ -67,10 +67,10 @@ Then("the function defined before main is included in the output", (p: Project) 
     return p.findFile("src/Main.elm").content.indexOf("diagram =") > 0
 });
 
-Then("the type alias is in the model section", (p: Project) =>
+Then("the type alias is in the Model section", (p: Project) =>
     {
         const program = ElmProgram.parse(p);
         const modelSection = program.getSection("MODEL");
-
+        return (modelSection.typeAliases.length === 2);
     }
 )

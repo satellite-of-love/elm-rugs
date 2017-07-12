@@ -16,59 +16,49 @@ export class UpgradeToBeginnerProgram implements EditProject {
 
         verifyElmProject(project);
 
-        const basicMainTreeNode = pxe.scalar<Project, TextTreeNode>(project, "/src/Main.elm/Elm()");
         const program = ElmProgram.parse(project);
-
-        const fullTypeOfMain : any = program.getFunction("main").declaredType;
-        if (fullTypeOfMain.typeReference.typeName.value() === "Program") {
+        if (program.programLevel !== "static") {
             // nothing to do here, it's already a Program
             return;
         }
 
-        function descend(from: TextTreeNode, path: string): TextTreeNode {
-            try {
-                return pxe.scalar<TextTreeNode, TextTreeNode>(from, path);
-            } catch (e) {
-                console.log("the children are: " + from.children().map((n) => n.nodeName() + (n as any).sectionHeader.value()).join(","));
-                throw e;
-            }
-        }
 
+
+        // Copy in the beginner program. We will change it. Then we will copy its body into Main.
+        project.copyEditorBackingFileOrFailToDestination("src/BeginnerProgram.elm", "deleteme/BeginnerProgram.elm");
+        const beginnerProgram = ElmProgram.parse(project, "deleteme/BeginnerProgram.elm");
+
+        // put the body of the current main into the new view function
+        const existingMain = program.getFunction("main");
+        beginnerProgram.getFunction("view").body.update(existingMain.body.value());
+        beginnerProgram.reparse();
+
+
+        const fullTypeOfMain : string = existingMain.declaredType.value();
 
         // the stuff we need from the existing program
-        const existingModuleBody = descend(basicMainTreeNode, "/moduleBody");
-        const existingMain = program.getFunction("main");
-        const everythingButMain: string = existingModuleBody.value().replace(existingMain.whole.value(), "");
+        const existingModuleBody = (program.moduleNode as any).moduleBody.value();
+        const everythingButMain: string = existingModuleBody.replace(
+            existingMain._whole.value(), "").replace(
+            new RegExp(fullTypeOfMain, "g"), "Html Msg"
+        );
         // TODO: could remove some whitespace too
 
         // bring the code we need in to the project so we can parse it
-        project.copyEditorBackingFileOrFailToDestination("src/BeginnerProgram.elm", "deleteme/BeginnerProgram.elm");
 
-        // TODO: imports.
-
-        const mainBodyText = existingMain.body.value();
-        // update the view function to contain the body of Main.main
-
-        const beginnerProgram = ElmProgram.parse(project, "deleteme/BeginnerProgram.elm");
-        beginnerProgram.getFunction("view").body.update(mainBodyText);
-        beginnerProgram.reparse();
 
         // add the rest of Main.elm to the view section
         const newViewSection = beginnerProgram.getSection("VIEW");
         newViewSection.body.update(
             newViewSection.body.value() + "\n\n" + everythingButMain);
+        beginnerProgram.reparse();
 
-        pxe.with<TextTreeNode>(project,
-            "/deleteme/BeginnerProgram.elm/Elm()/moduleBody",
-            (beginnerProgramBody) => {
-                // anything that used to return Html Never or whatever the original
-                // main was returning, now that should return Html Msg.
-                const adjustedBeginnerProgramBody =
-                    beginnerProgramBody.value().
-                        replace(new RegExp(fullTypeOfMain.value(), "g"), "Html Msg");
-                existingModuleBody.update(adjustedBeginnerProgramBody);
-            },
-        );
+
+        moveTypeAliasesFromViewToModelSection(beginnerProgram);
+        beginnerProgram.reparse();
+
+
+        program.moduleNode.moduleBody.update(beginnerProgram.moduleNode.moduleBody.value())
 
         // console.log("Here is the file yo");
         // console.log(basicMainTreeNode.value().replace(/^$/mg, "[blank]"));
@@ -77,6 +67,8 @@ export class UpgradeToBeginnerProgram implements EditProject {
 
     }
 }
+
+function moveTypeAliasesFromViewToModelSection(p: ElmProgram) {}
 
 /**
  * Throw a useful exception if we're in the wrong place

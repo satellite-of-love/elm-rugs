@@ -25,7 +25,7 @@ export interface Function {
     // parameters?
     declaredType: TextTreeNode,
     body: TextTreeNode,
-    whole: TextTreeNode
+    _whole: TextTreeNode
 }
 
 export interface Section {
@@ -53,7 +53,7 @@ export class ElmProgram {
 
     private pxe: PathExpressionEngine;
     public reparse: () => void;
-    private moduleNode: TextTreeNode;
+    public moduleNode: TextTreeNode & any;
 
     private constructor(project: Project, private filepath: string) {
         this.pxe = project.context.pathExpressionEngine;
@@ -141,7 +141,7 @@ export class ElmProgram {
             name,
             declaredType,
             body: functionNode.body,
-            whole: functionNode,
+            _whole: functionNode,
         };
     }
 
