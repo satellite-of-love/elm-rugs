@@ -79,9 +79,9 @@ Then("the Elm program is understood", (p: Project) => {
         console.log(`Found ${modelSection.typeAliases.length} type aliases`);
         return false;
     }
-    const modelType = program.getSection("MODEL").typeAliases[0].whole.value();
-    return beTheSame(`type alias Model =
-    {}`, modelType);
+
+    const modelType = modelSection.typeAliases[0];
+    return beTheSame(`Model`, modelType.name.value()) && beTheSame(`{}`, modelType.body.value());
 });
 
 function beTheSame(expected: string, actual: string): boolean {
