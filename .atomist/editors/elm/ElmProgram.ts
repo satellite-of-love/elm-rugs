@@ -29,9 +29,14 @@ export interface Function {
 }
 
 export interface Section {
+    _whole: TextTreeNode,
     name: TextTreeNode,
     body: TextTreeNode,
     typeAliases: TypeAlias[]
+}
+
+export function addDeclaration(s: Section, t: TypeAlias) {
+    s.body.update(s.body.value() + "\n\n" + t._whole.value())
 }
 
 export interface TypeAlias {
@@ -365,6 +370,7 @@ export class ElmProgram {
         const typeAliases = this.descend("/sectionContent/typeAlias", ttn).map(this.toTypeAlias);
 
         return {
+            _whole: ttn,
             name: ttn.sectionHeader,
             body: ttn.sectionContent,
             typeAliases: typeAliases

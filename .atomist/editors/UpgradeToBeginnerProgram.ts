@@ -2,7 +2,7 @@ import { Project } from "@atomist/rug/model/Project";
 import { Editor, Tags } from "@atomist/rug/operations/Decorators";
 import { EditProject } from "@atomist/rug/operations/ProjectEditor";
 import { TextTreeNode } from "@atomist/rug/tree/PathExpression";
-import { ElmProgram } from "./elm/ElmProgram";
+import { ElmProgram , addDeclaration } from "./elm/ElmProgram";
 
 /**
  * Sample TypeScript editor used by AddUpgradeToBeginnerProgram.
@@ -58,7 +58,7 @@ export class UpgradeToBeginnerProgram implements EditProject {
         beginnerProgram.reparse();
 
 
-        program.moduleNode.moduleBody.update(beginnerProgram.moduleNode.moduleBody.value())
+        program.moduleNode.moduleBody.update(beginnerProgram.moduleNode.moduleBody.value());
 
         // console.log("Here is the file yo");
         // console.log(basicMainTreeNode.value().replace(/^$/mg, "[blank]"));
@@ -68,7 +68,16 @@ export class UpgradeToBeginnerProgram implements EditProject {
     }
 }
 
-function moveTypeAliasesFromViewToModelSection(p: ElmProgram) {}
+function moveTypeAliasesFromViewToModelSection(p: ElmProgram) {
+
+    const viewSection = p.getSection("VIEW");
+    const modelSection = p.getSection("MODEL");
+
+    viewSection.typeAliases.forEach(t => {
+        addDeclaration(modelSection, t);
+        t._whole.update("");
+    });
+}
 
 /**
  * Throw a useful exception if we're in the wrong place
