@@ -30,7 +30,13 @@ export interface Function {
 
 export interface Section {
     name: TextTreeNode,
-    body: TextTreeNode
+    body: TextTreeNode,
+    typeAliases: TypeAlias[]
+}
+
+export interface TypeAlias {
+    name: TextTreeNode,
+    body: TextTreeNode,
 }
 
 export type ProgramLevel = "static" | "beginner" | "advanced"
@@ -343,21 +349,23 @@ export class ElmProgram {
     private get sections(): Section[] {
         const sectionNodes = this.descend("//section");
 
-        return sectionNodes.map((s: any) => {
-            return {
-                name: s.sectionHeader,
-                body: s.sectionContent
-            };
-        },
-        );
+        return sectionNodes.map(this.toSection);
+    }
+
+    private toSection(ttn: TextTreeNode & any): Section {
+        return {
+            name: ttn.sectionHeader,
+            body: ttn.sectionContent,
+            typeAliases: []
+        };
     }
 
     public getSection(sectionName: string): Section {
-        const sections = this.sections.filter((s) => s.name.value() === sectionName);
+        const sections = this.descend(`//section[/sectionHeader[@value='${sectionName}']]`);
         if (sections.length === 0) {
             throw new Error(`Section ${sectionName} not found in ${this.filepath}`);
         }
-        return sections[0];
+        return this.toSection(sections[0]);
     }
 
     public addFunction(functionText: string, sectionName: string) {

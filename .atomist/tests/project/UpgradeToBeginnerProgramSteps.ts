@@ -44,13 +44,21 @@ import Html exposing (Html)
 diagram =
    "elm.png"
 
+
 main : Html Never
 main =
     Html.div [] []
+
+
+type alias Label = 
+    { text: String
+    , x: Int
+    , y: Int
+    }
 `;
 
 
-Given("a project with a static program that defines something before main", (p: Project) => {
+Given("a project with a useful static program", (p: Project) => {
     p.addFile("src/Main.elm", STATIC_PAGE_WITH_FUNCTION);
     p.addFile("elm-package.json", "");
 });
@@ -58,3 +66,11 @@ Given("a project with a static program that defines something before main", (p: 
 Then("the function defined before main is included in the output", (p: Project) => {
     return p.findFile("src/Main.elm").content.indexOf("diagram =") > 0
 });
+
+Then("the type alias is in the model section", (p: Project) =>
+    {
+        const program = ElmProgram.parse(p);
+        const modelSection = program.getSection("Model");
+
+    }
+)
