@@ -37,6 +37,7 @@ export interface Section {
 export interface TypeAlias {
     name: TextTreeNode,
     body: TextTreeNode,
+    _whole: TextTreeNode,
 }
 
 export type ProgramLevel = "static" | "beginner" | "advanced"
@@ -354,6 +355,7 @@ export class ElmProgram {
 
     private toTypeAlias(ttn: TextTreeNode & any): TypeAlias {
         return {
+            _whole: ttn,
             body: ttn.definition,
             name: ttn.typeName,
         }
