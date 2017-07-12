@@ -1,88 +1,68 @@
-# Elm Generators and Editors for Rug
+# Elm with Rug
 
-This README is out of date
+Elm is a fabulous language. One of my favorite features is its explicitness: everything is perfectly clear and organized. 
+Sometimes this leads to one conceptual change requiring changes in many places -- for instance, adding a text input
+means adding a model field (change the Model type and init), a message (change the Msg type and update), and the view.
 
-although the scripts actually work now (June 2017), they use a parser (jessitron/kats-parser) that currently has to be locally installed. 
+I can abstract this into one operation by writing a program to do the changes for me.
 
-I still have to write up the instructions. It'll be July before I can do that.
+This is where Rug comes in. Rug is an open-source tool developed by Atomist to facilitate _code that modifies code_. 
+I write my programs in TypeScript with Rug libraries, then execute them in a Rug runtime. Locally, I use the Rug command line.
+Then if I want, I can invite the Atomist bot to my slack team, and it'll create repositories and pull requests for me
+using my programs.
 
-## Sorry
+## Evolving Elm programs
 
+My primary objective right now is to experiment with Elm programs: start with a simple static page, evolve it into a
+BeginnerProgram and then an AdvancedProgram when I need it. Meanwhile I can do should-be-simple tasks like adding an
+input field or subscribing to click events as a single operation: run a Rug program that makes a commit with all the 
+necessary changes nicely coordinated.
 
-This repository contains scripts for starting and upgrading Elm programs. The scripts run in [Rug](http://docs.atomist.com/rug/why-and-what-is-rug/), a runtime for code that modifies code.
+This repository contains Rug programs that you can use on your (simple, for now) Elm programs.
 
-Here's a writeup of how to get started: [Using Rug with Elm](http://blog.jessitron.com/2016/12/using-rug-with-elm.html)
+## Try it out
 
-In general, there are two ways to run Rugs.
-The Atomist bot in [Atomist Community Slack](https://join.atomist.com) can run the published versions. The bot will create a repo for you in response to `@atomist create`, or send a PR to an existing repo on `@atomist edit` (after you authorize it to do this in your github account). In the #rug-elm channel, type "@atomist create elm" to start.
+You'll need the Rug CLI. https://docs.atomist.com/quick-starts/rug-cli/. This gets you a program called `rug`.
 
-To run locally (and change!) the latest versions of these Rugs, clone this repo and use the [Rug CLI](https://docs.atomist.com/quick-starts/rug-cli/).
+Then clone this repo (I'll work on removing this step, but for now...) and run `rug install` in its directory.
+If this doesn't work please open an issue! I want to fix it!
+This publishes the Rugs to a local repository on your computer, so that the Rug CLI can find them from anywhere.
 
-Way Major Caveat!! I only know that these work on the particular code I've run them on. They're going to fail a lot. Issues welcome.
+## Start a new Elm project
 
-## Generators
-Generators create a new project from scratch.
+You could make a directory and run `elm make` and poof you have an Elm project ... but I like a little more organization
+than that. Try this:
 
-Sample usage, to create a project called `banana` as a subdirectory of the current directory:
+`rug generate jessitron:elm-rugs:StaticPage happy-new-project-name -R`
 
-`rug generate satellite-of-love:elm-rugs:StaticPage banana`
+This'll create a new directory called happy-new-project-name and put an Elm project in it, with Main.elm inside `src` and 
+an index.html inside `resources` and a `build` script that puts all the output inside `target`. 
+The `-R` part says "also initialize a git repository and make the initial commit."
+Basically it makes a copy of 
+this repository, then makes a few adjustments.
 
-### StaticPage
-A new Elm program with a main function that returns an empty div. Start here to create your basic UI, and then add interactivity with UpgradeToBeginnerProgram.
+(It's cooler when I do this from Slack and it makes the GitHub repo for me and sets up notifications in a matching Slack channel.)
 
+Compile and open the Elm page:
 
-## Editors
-Editors operate on an existing project. They change the Elm code for you, in ways that you're likely to do often.
+`cd happy-new-project-name`
+`./build`
+`open target/index.html`
 
-I'm only listing the top-level editors here. That are also small ones (like AddToModel or AddMessage) that are really units of composition for the bigger ones listed here.
+It's blank. Change `src/Main.elm` and repeat. This is when I create the outline of the page, so that I can see what it 
+looks like before adding interactivity.
 
-Sample usage, to add a text input to an existing beginner program (run this in your Elm project's directory):
+(suggestions for better dev-process scripts welcome)
 
-`rug edit jessitron:elm-rugs:AddTextInput input_name=favoriteColor`
+## Upgrade it to a beginner program
 
-### UpgradeToBeginnerProgram
-If you have a Static Page, this moves the content of `main` into `view` and provides the outline of an Elm Beginner Program. (see: [The Elm Architecture](https://guide.elm-lang.org/architecture/))
+When the static page looks fine and it's time to add interactivity, then from the root of my happy project:
 
-### Organize
-If you didn't start the project with a generator from here, and your Elm module is sitting there in your source directory right next to the index.html output by `elm make`, then this editor is for you. It moves Elm code under `src/`, creates a `resources` directory containing an index.html and styles.css, and provides a `build` script that will sends the output to a `target/` directory. Act now, and you'll get `.gitignore` for free!
+`rug edit jessitron:elm-rugs:UpgradeToBeginnerProgram -R`
 
-Parameter:
+Now Rug will run the UpgradeToBeginnerProgram editor, which changes the code in `src/Main.elm`.
+It takes the body of `main` and moves it to `view`, then adds all the other code needed for a beginner program.
+You can check out the code for it [here](https://github.com/satellite-of-love/elm-rugs/blob/master/.atomist/editors/UpgradeToBeginnerProgram.ts).
 
-* project_name: populates the title in index.html
+Have fun changing update and adding stuff to Model and Msg.... I'll add information about editors that can help with that here.
 
-### AddButton
-Have a function that returns a button element, complete with onClick event that comes back to your update function.
-
-Parameters:
-
-* button_text: text to display on the button, like "Push Me"
-* button_message: message to send on click, like `ButtonPushed`
-
-### AddTextInput
-This makes five changes: a field in the model (and its type), a message (and its clause in update), and a function that you can call in your view.
-
-Parameter:
-
-* new_input: id for the text field. For instance: `favoriteColor`
-
-This'll give you a function `favoriteColorInput : Model -> Html Msg` which returns the text input element, which will save its content into a `favoriteColor` field in your model, by passing a `FavoriteColor` message.
-
-### OnEnter
-Create an `onEnter: Msg -> Html.Attribute Msg` function, useful in text inputs that want to respond to Enter. I copied the code for this function out of the Elm tutorial.
-
-Parameter:
-
-* enter_message: a message type, like `SaveFavoriteColor`. Figured we might as well add a message in the same step, since you're going to need to send one.
-
-
-### UpgradeToProgram
-This takes a Beginner Program up to a full program, so that you can add subscriptions and commands.
-
-### SubscribeToClicks
-Subscribe to mouse clicks, and save the mouse position of the last click in a model field called `lastClick`.
-
-### SubscribeToWindowSize
-Get the window size, both on initialization and at every resize. Store it in the model.
-
-### FocusCommand 
-Add a function `requestFocus: String -> Cmd Msg` that lets you send a focus request. Pass it a field ID. If that field doesn't exist, you'll hear about it in a `FieldIdNotFound` message, which you can spot in the debugger.
