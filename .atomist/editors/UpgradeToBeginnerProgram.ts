@@ -17,9 +17,10 @@ export class UpgradeToBeginnerProgram implements EditProject {
         verifyElmProject(project);
 
         const basicMainTreeNode = pxe.scalar<Project, TextTreeNode>(project, "/src/Main.elm/Elm()");
-        const typeOfMain = pxe.scalar<TextTreeNode, TextTreeNode>(basicMainTreeNode,
-            "//typeDeclaration[@functionName='main']/declaredType/typeReference/typeName");
-        if (typeOfMain.value() === "Program") {
+        const program = ElmProgram.parse(project);
+
+        const fullTypeOfMain : any = program.getFunction("main").declaredType;
+        if (fullTypeOfMain.typeReference.typeName.value() === "Program") {
             // nothing to do here, it's already a Program
             return;
         }
@@ -33,12 +34,10 @@ export class UpgradeToBeginnerProgram implements EditProject {
             }
         }
 
-        const program = ElmProgram.parse(project);
 
         // the stuff we need from the existing program
         const existingModuleBody = descend(basicMainTreeNode, "/moduleBody");
         const existingMain = program.getFunction("main");
-        const fullTypeOfMain: string = existingMain.declaredType.value();
         const everythingButMain: string = existingModuleBody.value().replace(existingMain.whole.value(), "");
         // TODO: could remove some whitespace too
 
@@ -66,7 +65,7 @@ export class UpgradeToBeginnerProgram implements EditProject {
                 // main was returning, now that should return Html Msg.
                 const adjustedBeginnerProgramBody =
                     beginnerProgramBody.value().
-                        replace(new RegExp(fullTypeOfMain, "g"), "Html Msg");
+                        replace(new RegExp(fullTypeOfMain.value(), "g"), "Html Msg");
                 existingModuleBody.update(adjustedBeginnerProgramBody);
             },
         );

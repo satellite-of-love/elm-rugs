@@ -51,7 +51,8 @@ main =
 
 
 Given("a project with a static program that defines something before main", (p: Project) => {
-    p.addFile("src/Main.elm", STATIC_PAGE_WITH_FUNCTION)
+    p.addFile("src/Main.elm", STATIC_PAGE_WITH_FUNCTION);
+    p.addFile("elm-package.json", "");
 });
 
 Then("the function defined before main is included in the output", (p: Project) => {
