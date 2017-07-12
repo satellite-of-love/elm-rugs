@@ -22,7 +22,7 @@ This repository contains Rug programs that you can use on your (simple, for now)
 
 ## Try it out
 
-You'll need the Rug CLI. https://docs.atomist.com/quick-starts/rug-cli/. This gets you a program called `rug`.
+You'll need the Rug CLI. http://docs.atomist.com/quick-starts/rug-cli/. This gets you a program called `rug`.
 
 Then clone this repo (I'll work on removing this step, but for now...) and run `rug install` in its directory.
 If this doesn't work please open an issue! I want to fix it!
