@@ -1,7 +1,6 @@
 import { Project } from "@atomist/rug/model/Project";
 import { Editor, Tags } from "@atomist/rug/operations/Decorators";
 import { EditProject } from "@atomist/rug/operations/ProjectEditor";
-import { TextTreeNode } from "@atomist/rug/tree/PathExpression";
 import { ElmProgram , addDeclaration } from "./elm/ElmProgram";
 
 /**
@@ -21,8 +20,6 @@ export class UpgradeToBeginnerProgram implements EditProject {
             // nothing to do here, it's already a Program
             return;
         }
-
-
 
         // Copy in the beginner program. We will change it. Then we will copy its body into Main.
         project.copyEditorBackingFileOrFailToDestination("src/BeginnerProgram.elm", "deleteme/BeginnerProgram.elm");
@@ -44,8 +41,6 @@ export class UpgradeToBeginnerProgram implements EditProject {
         );
         // TODO: could remove some whitespace too
 
-        // bring the code we need in to the project so we can parse it
-
 
         // add the rest of Main.elm to the view section
         const newViewSection = beginnerProgram.getSection("VIEW");
@@ -59,9 +54,6 @@ export class UpgradeToBeginnerProgram implements EditProject {
 
 
         program.moduleNode.moduleBody.update(beginnerProgram.moduleNode.moduleBody.value());
-
-        // console.log("Here is the file yo");
-        // console.log(basicMainTreeNode.value().replace(/^$/mg, "[blank]"));
 
         project.deleteFile("deleteme/BeginnerProgram.elm");
 
