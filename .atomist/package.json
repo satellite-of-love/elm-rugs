@@ -19,19 +19,19 @@
   },
   "homepage": "https://github.com/jessitron/elm-rugs#readme",
   "dependencies": {
-    "@atomist/rugs": "^1.0.0-m.5",
+    "@atomist/rugs": "^1.0.0-m.6",
     "deprecated-decorator": "0.1.6",
-    "js-yaml": "^3.8.4",
+    "js-yaml": "^3.9.0",
     "lodash": "^4.17.4"
   },
   "devDependencies": {
+    "@types/js-yaml": "^3.9.0",
     "@types/mocha": "^2.2.40",
     "@types/power-assert": "^1.4.29",
-    "@types/js-yaml": "^3.5.30",
-    "espower-typescript": "^8.0.0",
+    "espower-typescript": "^8.0.2",
     "mocha": "^3.2.0",
-    "power-assert": "^1.4.2",
-    "tslint": "^5.0.0",
+    "power-assert": "^1.4.4",
+    "tslint": "^5.5.0",
     "typescript": "2.3.2"
   },
   "directories": {
