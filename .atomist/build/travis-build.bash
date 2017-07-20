@@ -4,7 +4,7 @@
 set -o pipefail
 
 declare Pkg=travis-build
-declare Version=0.8.0
+declare Version=0.9.0
 
 function msg() {
     echo "$Pkg: $*"
@@ -68,6 +68,12 @@ function main () {
     msg "running lint"
     if ! ( cd .atomist && npm run lint ); then
         err "tslint failed"
+        return 1
+    fi
+
+    msg "compiling TypeScript"
+    if ! ( cd .atomist && npm run compile ); then
+        err "tsc compilation failed"
         return 1
     fi
 

@@ -15,15 +15,17 @@
         "preserveConstEnums": true,
         "suppressImplicitAnyIndexErrors": true,
         "outDir": "target/ts-built",
-        "rootDir": "."
+        "rootDir": ".",
+        "sourceMap": true
     },
     "exclude": [
         "node_modules",
+        "target",
         "typings/browser",
         "typings/browser.d.ts"
     ],
     "compileOnSave": true,
-    "buildOnSave": true,
+    "buildOnSave": false,
     "atom": {
         "rewriteTsconfig": false
     }

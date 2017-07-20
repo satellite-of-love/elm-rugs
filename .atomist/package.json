@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/jessitron/elm-rugs#readme",
   "dependencies": {
-    "@atomist/rugs": "^1.0.0-m.6",
+    "@atomist/rugs": "^1.0.0-m.5",
     "deprecated-decorator": "0.1.6",
     "js-yaml": "^3.9.0",
     "lodash": "^4.17.4"
