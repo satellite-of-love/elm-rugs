@@ -72,3 +72,6 @@ You can check out the code for it [here](https://github.com/satellite-of-love/el
 
 Have fun changing update and adding stuff to Model and Msg.... I'll add information about editors that can help with that here.
 
+# Troubleshooting
+
+You'll need Java 1.8.0_111 or higher. If you get an error about "--optimistic-types" when running `rug install`, this might be your problem. Previous versions have bugs in Nashorn (which runs JS on the JVM).
