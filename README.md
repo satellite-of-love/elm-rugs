@@ -1,3 +1,19 @@
+# Deprecated
+
+If you saw [my elm-conf talk](https://www.youtube.com/watch?v=jJ4e6cIBgYM) and were intrigued by using code to edit code:
+well you can, but my specific examples don't work anymore.
+
+Instead of Rug, Atomist has [code editors](https://github.com/atomist/automation-client-ts/blob/master/docs/ProjectEditors.md)
+as commands inside automation clients. They're in TypeScript, a full programming languages instead of a Rug DSL.
+They run on your infrastructure, and interface with Atomist through an API that lets you define Slack commands to trigger
+them, query data about commits etc, and react to events like a push or an update.
+
+The bad news is, my parsers were in Scala, and the new version doesn't run in the JVM, so it isn't compatible with the
+stuff I wrote these programs for.
+
+So while code to modify code moves on, this particular Elm implementation is defunct.
+
+
 # Elm with Rug
 
 Elm is a fabulous language. One of my favorite features is its explicitness: everything is perfectly clear and organized. 
@@ -22,17 +38,7 @@ This repository contains Rug programs that you can use on your (simple, for now)
 
 ## Try it out
 
-You'll need the Rug CLI. On a Mac:
-```
-$ brew tap atomist/tap
-$ brew install rug-cli
-```
-elsewhere: http://docs.atomist.com/user-guide/interfaces/cli/install/
-This gets you a program called `rug`.
-
-Then clone this repo (I'll work on removing this step, but for now...) and run `rug install` in its directory.
-If this doesn't work please open an issue! I want to fix it!
-This publishes the Rugs to a local repository on your computer, so that the Rug CLI can find them from anywhere.
+... yeah this won't work
 
 ## Start a new Elm project
 
@@ -41,7 +47,7 @@ than that. Try this:
 
 `rug generate jessitron:elm-rugs:StaticPage happy-new-project-name -R`
 
-This'll create a new directory called happy-new-project-name and put an Elm project in it, with Main.elm inside `src` and 
+This used to create a new directory called happy-new-project-name and put an Elm project in it, with Main.elm inside `src` and 
 an index.html inside `resources` and a `build` script that puts all the output inside `target`. 
 The `-R` part says "also initialize a git repository and make the initial commit."
 Basically it makes a copy of 
@@ -66,12 +72,10 @@ When the static page looks fine and it's time to add interactivity, then from th
 
 `rug edit jessitron:elm-rugs:UpgradeToBeginnerProgram -R`
 
-Now Rug will run the UpgradeToBeginnerProgram editor, which changes the code in `src/Main.elm`.
+Then it would run the UpgradeToBeginnerProgram editor, which changed the code in `src/Main.elm`.
 It takes the body of `main` and moves it to `view`, then adds all the other code needed for a beginner program.
 You can check out the code for it [here](https://github.com/satellite-of-love/elm-rugs/blob/master/.atomist/editors/UpgradeToBeginnerProgram.ts).
 
-Have fun changing update and adding stuff to Model and Msg.... I'll add information about editors that can help with that here.
+## Sorry it doesn't work anymore.
 
-# Troubleshooting
-
-You'll need Java 1.8.0_111 or higher. If you get an error about "--optimistic-types" when running `rug install`, this might be your problem. Previous versions have bugs in Nashorn (which runs JS on the JVM).
+I'd love to write these again but have other priorities. If you want to, I'm happy to help! [slack](https://join.atomist.com)
